@@ -14,7 +14,7 @@ public class Controller {
     private static final Logger logger = LogManager.getLogger(Controller.class);
 	private Tank tank;
 	private Pump pump;
-	//private FlowMeter flow;
+	private FlowMeter flow;
 	private Valve valve;
 	private Timer timer;
 	private int pollInterval = 1;
@@ -24,6 +24,7 @@ public class Controller {
 		tank = new Tank();
 		valve = new Valve();
 		pump = new Pump();
+		flow = new FlowMeter();
 		
 		startPolling();
 		logger.trace("Init done!");
