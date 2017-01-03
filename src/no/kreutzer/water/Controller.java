@@ -18,6 +18,7 @@ public class Controller {
 	private Valve valve;
 	private Timer timer;
 	private int pollInterval = 1;
+	private boolean autoFill = true;
 	
 	private void init() {
 		tank = new Tank();
@@ -71,7 +72,8 @@ public class Controller {
 		public void run() {
 			tank.updateLevel();
 			
-			checkLevel();
+			if (autoFill)
+				checkLevel();
 			//timer.cancel(); 
 		}
 	}
