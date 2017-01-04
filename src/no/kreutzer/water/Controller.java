@@ -61,8 +61,8 @@ public class Controller {
 			logger.info("Start filling");
 			tank.setState(Tank.State.FILLING);
 			startFill();
-		} else if (level >= Tank.UPPER_THRESHOLD) {
-			logger.trace("Stop filling");
+		} else if (level >= Tank.UPPER_THRESHOLD && tank.getState() == Tank.State.FILLING) {
+			logger.info("Stop filling");
 			stopFill();
 			tank.setState(Tank.State.FULL);
 		} 
