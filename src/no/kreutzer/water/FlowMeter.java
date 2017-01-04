@@ -16,10 +16,8 @@ public class FlowMeter {
 	final GpioController gpio = GpioFactory.getInstance();
 	final GpioPinDigitalInput flowPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02,PinPullResistance.PULL_DOWN);
 	
-	// Measure flow in litres per minute
-	private int flow;
 	// Frequency in pulses per minute (?)
-	private int freq;
+	private int pulseCounter=0;
 	// Number of pulses per litre
 	private static int NUM_PULSES_PER_LITRE = 666;
 	
@@ -29,13 +27,31 @@ public class FlowMeter {
 		flowPin.addTrigger(new GpioCallbackTrigger(new Callable<Void>() {
 			public Void call() throws Exception {
 				logger.trace(" --> GPIO TRIGGER CALLBACK RECEIVED ");
+				pulseCounter++; //todo: only count if high..
 				return null;
 			}
 		})); 
+/*
+ *         // alternatively
+        flowPin.addListener(new GpioPinListenerDigital() {
+            @Override
+            public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
+                // display pin state on console
+                console.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " +
+                        ConsoleColor.conditional(
+                                event.getState().isHigh(), // conditional expression
+                                ConsoleColor.GREEN,        // positive conditional color
+                                ConsoleColor.RED,          // negative conditional color
+                                event.getState()));        // text to display
+            }
+
+        });
+ * */		
+		//TODO: start timer that updates flow each second
 	}
 	
 	/* Return flow in litres per minute */
 	public int getFlow() {
-		return freq/NUM_PULSES_PER_LITRE;
+		return 0 ;
 	}
 }
