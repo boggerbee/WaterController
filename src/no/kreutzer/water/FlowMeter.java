@@ -54,4 +54,16 @@ public class FlowMeter {
 	public int getFlow() {
 		return 0 ;
 	}
+	
+	/* 
+	 * Start listening
+	 */
+	public void startMeasure() {
+	}
+	
+	/*
+	 * Stop listening
+	 */
+	public void stopMeasure() {
+	}
 }

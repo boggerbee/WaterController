@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 public class Tank {
     private static final Logger logger = LogManager.getLogger(Tank.class);
+	// Thresholds for upper(full) and lower limit to start fill in percent
 	public static final int UPPER_THRESHOLD = 90;
 	public static final int LOWER_THRESHOLD = 80;
 	private LevelMeter levelMeter;

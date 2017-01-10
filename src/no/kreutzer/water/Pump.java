@@ -1,4 +1,4 @@
-package no.kreutzer.water;
+package no .kreutzer.water;
 
 import com.pi4j.io.gpio.*;
 import org.apache.logging.log4j.LogManager;
