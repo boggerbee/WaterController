@@ -10,9 +10,12 @@ import org.apache.logging.log4j.Logger;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import org.apache.http.HttpEntity;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonObject;
+import javax.json.Json;
+
+import no.kreutzer.utils.RESTService;
 
 public class Controller {
     private static final Logger logger = LogManager.getLogger(Controller.class);
@@ -23,6 +26,7 @@ public class Controller {
 	private Timer timer;
 	private int pollInterval = 1;
 	private boolean autoFill = true;
+	RESTService rest = new RESTService();
 	
 	private void init() {
 		tank = new Tank();
@@ -30,23 +34,24 @@ public class Controller {
 		pump = new Pump();
 		flow = new FlowMeter();
 		
-		try {
-			RESTService rest = new RESTService();
-			HttpEntity entity = rest.get("api/level");
-			BufferedReader rd = new BufferedReader(new InputStreamReader(entity.getContent()));
-			
-			// Use javax.json.JsonObject or org.json.JSONObject
-			
-			String line = "";
-			while ((line = rd.readLine()) != null) {
-				logger.info(line);
-			}
-		} catch (IOException e) {
-			logger.error(e.getMessage());
-		}
-		
 		startPolling();
+		updateStatus();
 		logger.trace("Init done!");
+	}
+	
+	private void updateStatus() {
+		JsonObject json = Json.createObjectBuilder()
+			.add("Tank",Json.createObjectBuilder()
+						.add("Level",tank.getLevel())
+						.add("State",tank.getState().toString())
+						.build()
+						)				
+			.add("Pump",Json.createObjectBuilder()
+						.add("State",pump.getState().toString())
+						.build()
+						)
+			.build();
+		rest.doPost("api/tank",json);
 	}
 	
 	private void startPolling() {
@@ -60,6 +65,7 @@ public class Controller {
 			flow.startMeasure();
 			Thread.sleep(500);
 			pump.on();
+			updateStatus();
 		} catch (InterruptedException e) {
 			logger.error("Failed to sleep "+e.getMessage());
 		}
@@ -71,6 +77,7 @@ public class Controller {
 			Thread.sleep(500);
 			valve.close();
 			flow.stopMeasure();
+			updateStatus();
 		} catch (InterruptedException e) {
 			logger.error("Failed to sleep "+e.getMessage());
 		}
