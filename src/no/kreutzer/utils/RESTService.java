@@ -21,7 +21,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class RESTService {
-	private final String SERVER_URL = "http://192.168.10.123:8080";
+	private final String SERVER_URL = "http://data.kreutzer.no/dataserver";
     private static final Logger logger = LogManager.getLogger(RESTService.class);
 	
 	public RESTService() {
@@ -65,7 +65,7 @@ public class RESTService {
 		CloseableHttpResponse response = httpclient.execute(httpPost);
 
 		try {
-			logger.info("POST status:"+response.getStatusLine());
+//			logger.info("POST status:"+response.getStatusLine());
 			HttpEntity e = response.getEntity();
 			EntityUtils.consume(e);
 		} finally {
@@ -83,7 +83,7 @@ public class RESTService {
 		public void run() {
 			try {
 				String result = get(url);
-				logger.info(result);
+//				logger.info(result);
 			} catch (IOException e) {
 				logger.error(e.getMessage());
 			}
@@ -106,6 +106,7 @@ public class RESTService {
 			} catch (IOException e) {
 				logger.error(e.getMessage());
 			}
+			
 		}
 	}
 	

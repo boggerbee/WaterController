@@ -24,8 +24,9 @@ public class Controller {
 	private FlowMeter flow;
 	private Valve valve;
 	private Timer timer;
-	private int pollInterval = 1;
+	private int pollInterval = 5;
 	private boolean autoFill = true;
+	private String id = "Almedalen25"; //@TODO: put in property-file
 	RESTService rest = new RESTService();
 	
 	private void init() {
@@ -40,16 +41,14 @@ public class Controller {
 	}
 	
 	private void updateStatus() {
-		JsonObject json = Json.createObjectBuilder()
-			.add("Tank",Json.createObjectBuilder()
-						.add("Level",tank.getLevel())
-						.add("State",tank.getState().toString())
-						.build()
-						)				
-			.add("Pump",Json.createObjectBuilder()
-						.add("State",pump.getState().toString())
-						.build()
-						)
+
+ 	JsonObject json = Json.createObjectBuilder()
+			.add("id",id)
+			.add("level",tank.getLevel())
+			.add("flow",flow.getFlow())
+			.add("state",tank.getState().toString())
+			.add("pumpState",pump.getState().toString())
+			.add("valveState",valve.getState().toString())
 			.build();
 		rest.doPost("api/tank",json);
 	}
@@ -65,7 +64,6 @@ public class Controller {
 			flow.startMeasure();
 			Thread.sleep(500);
 			pump.on();
-			updateStatus();
 		} catch (InterruptedException e) {
 			logger.error("Failed to sleep "+e.getMessage());
 		}
@@ -77,7 +75,6 @@ public class Controller {
 			Thread.sleep(500);
 			valve.close();
 			flow.stopMeasure();
-			updateStatus();
 		} catch (InterruptedException e) {
 			logger.error("Failed to sleep "+e.getMessage());
 		}
@@ -91,10 +88,11 @@ public class Controller {
 			startFill();
 		} else if (level >= Tank.UPPER_THRESHOLD && tank.getState() == Tank.State.FILLING) {
 			logger.info("Stop filling");
-			stopFill();
 			tank.setState(Tank.State.FULL);
+			stopFill();
 		} 
-		logger.trace("Level="+level+" "+tank.getState()); 
+//		logger.trace("Level="+level+" "+tank.getState()); 
+		updateStatus();
 	}
 	
 	class Poll extends TimerTask {
