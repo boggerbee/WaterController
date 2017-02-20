@@ -29,9 +29,9 @@ public class LevelMeter {
 			return 0;
 		}
 	}
-	public int measurePercent() {
-		int part = measureRaw() - MIN_VALUE;
-		int whole = MAX_VALUE - MIN_VALUE;
+	public float measurePercent() {
+		float part = measureRaw() - MIN_VALUE;
+		float whole = MAX_VALUE - MIN_VALUE;
 		return (part*100)/whole;
 	}	
 }

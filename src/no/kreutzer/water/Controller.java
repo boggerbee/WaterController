@@ -81,7 +81,7 @@ public class Controller {
 	}
     
     private void checkLevel() {
-		int level = tank.getLevel();
+		float level = tank.getLevel();
 		if (level < Tank.LOWER_THRESHOLD && tank.getState() != Tank.State.FILLING) {
 			logger.info("Start filling");
 			tank.setState(Tank.State.FILLING);

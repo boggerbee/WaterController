@@ -51,7 +51,7 @@ public class FlowMeter {
 	}
 	
 	/* Return flow in litres per minute */
-	public int getFlow() {
+	public float getFlow() {
 		return 0 ;
 	}
 	

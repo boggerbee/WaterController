@@ -10,7 +10,7 @@ public class Tank {
 	public static final int LOWER_THRESHOLD = 80;
 	private LevelMeter levelMeter;
 	
-	private int level = 0;
+	private float level = 0;
 	
 	public enum State {FILLING,FULL};
 	private State state = State.FULL;
@@ -22,11 +22,11 @@ public class Tank {
 		updateLevel();
 	}
 	
-	public int updateLevel() {
+	public float updateLevel() {
 		level = levelMeter.measurePercent();
 		return level;
 	}
-	public int getLevel() {
+	public float getLevel() {
 		return level;
 	}
 	public State getState() {
