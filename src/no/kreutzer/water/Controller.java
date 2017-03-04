@@ -41,15 +41,15 @@ public class Controller {
 	}
 	
 	private void updateStatus() {
-
- 	JsonObject json = Json.createObjectBuilder()
-			.add("id",id)
-			.add("level",tank.getLevel())
-			.add("flow",flow.getFlow())
-			.add("state",tank.getState().toString())
-			.add("pumpState",pump.getState().toString())
-			.add("valveState",valve.getState().toString())
-			.build();
+		
+		JsonObject json = Json.createObjectBuilder()
+				.add("id",id)
+				.add("level",tank.getLevel())
+				.add("flow",flow.getFlow())
+				.add("state",tank.getState().toString())
+				.add("pumpState",pump.getState().toString())
+				.add("valveState",valve.getState().toString())
+				.build();
 		rest.doPost("api/tank",json);
 	}
 	
@@ -61,7 +61,6 @@ public class Controller {
     private void startFill() {
 		try {
 			valve.open();
-			flow.startMeasure();
 			Thread.sleep(500);
 			pump.on();
 		} catch (InterruptedException e) {
@@ -74,7 +73,6 @@ public class Controller {
 			pump.off();
 			Thread.sleep(500);
 			valve.close();
-			flow.stopMeasure();
 		} catch (InterruptedException e) {
 			logger.error("Failed to sleep "+e.getMessage());
 		}
@@ -101,7 +99,8 @@ public class Controller {
 			
 			if (autoFill)
 				checkLevel();
-			//timer.cancel(); 
+
+			flow.reset();
 		}
 	}
 	

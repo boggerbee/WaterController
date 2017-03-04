@@ -8,62 +8,49 @@ package no.kreutzer.water;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.pi4j.io.gpio.*;
+import com.pi4j.io.gpio.event.*;
 import com.pi4j.io.gpio.trigger.*;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class FlowMeter {
     private static final Logger logger = LogManager.getLogger(FlowMeter.class);
 	final GpioController gpio = GpioFactory.getInstance();
-	final GpioPinDigitalInput flowPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_02,PinPullResistance.PULL_DOWN);
+	final GpioPinDigitalInput flowPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_07,"Flow sensor",PinPullResistance.PULL_DOWN);
 	
-	// Frequency in pulses per minute (?)
-	private int pulseCounter=0;
+	private AtomicInteger pulseIncrement = new AtomicInteger();
+	private AtomicInteger pulseTotal = new AtomicInteger();
+	
+	private float lastFlow = 0;
+	
 	// Number of pulses per litre
 	private static int NUM_PULSES_PER_LITRE = 666;
 	
 	/* Constructor */
 	public FlowMeter () {
-		// TODO: register listener on flow pin
-		flowPin.addTrigger(new GpioCallbackTrigger(new Callable<Void>() {
-			public Void call() throws Exception {
-				logger.trace(" --> GPIO TRIGGER CALLBACK RECEIVED ");
-				pulseCounter++; //todo: only count if high..
-				return null;
-			}
-		})); 
-/*
- *         // alternatively
         flowPin.addListener(new GpioPinListenerDigital() {
             @Override
             public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
-                // display pin state on console
-                console.println(" --> GPIO PIN STATE CHANGE: " + event.getPin() + " = " +
-                        ConsoleColor.conditional(
-                                event.getState().isHigh(), // conditional expression
-                                ConsoleColor.GREEN,        // positive conditional color
-                                ConsoleColor.RED,          // negative conditional color
-                                event.getState()));        // text to display
+                if (event.getState().isHigh()) {
+					//logger.info(event.getPin() + " = " + event.getState() + " cnt:"+pulseIncrement);  
+					pulseIncrement.incrementAndGet();
+				}
             }
-
         });
- * */		
-		//TODO: start timer that updates flow each second
 	}
 	
-	/* Return flow in litres per minute */
+	// TODO: calculate real flow
 	public float getFlow() {
-		return 0 ;
+		return pulseIncrement.get();
+	}
+	public int getTotalCount() {
+		return pulseTotal.get();
 	}
 	
-	/* 
-	 * Start listening
-	 */
-	public void startMeasure() {
-	}
-	
-	/*
-	 * Stop listening
-	 */
-	public void stopMeasure() {
+	// to be called every second
+	public void reset() {
+		int currentCount = pulseIncrement.getAndSet(0);
+		pulseTotal.addAndGet(currentCount);
+		lastFlow = currentCount/NUM_PULSES_PER_LITRE;
 	}
 }
