@@ -9,9 +9,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.io.IOException;
-import org.apache.http.HttpEntity;
-import javax.json.JsonObjectBuilder;
 import javax.json.JsonObject;
 import javax.json.Json;
 
