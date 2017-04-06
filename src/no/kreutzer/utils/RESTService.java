@@ -65,7 +65,7 @@ public class RESTService {
 		CloseableHttpResponse response = httpclient.execute(httpPost);
 
 		try {
-//			logger.info("POST status:"+response.getStatusLine());
+			logger.info("Posting:"+json.toString());
 			HttpEntity e = response.getEntity();
 			EntityUtils.consume(e);
 		} finally {

@@ -7,8 +7,14 @@ package no.kreutzer.water;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import javax.json.JsonObject;
 import javax.json.Json;
 
@@ -20,8 +26,9 @@ public class Controller {
 	private Pump pump;
 	private FlowMeter flow;
 	private Valve valve;
-	private Timer timer;
-	private int pollInterval = 5;
+	private ScheduledExecutorService scheduledPool;
+	private static int FILL_INTERVAL = 1;
+	private static int FULL_INTERVAL = 60;
 	private boolean autoFill = true;
 	private String id = "Almedalen25"; //@TODO: put in property-file
 	RESTService rest = new RESTService();
@@ -32,8 +39,11 @@ public class Controller {
 		pump = new Pump();
 		flow = new FlowMeter();
 		
-		startPolling();
-		updateStatus();
+        scheduledPool = Executors.newScheduledThreadPool(4);
+        //scheduledPool.scheduleWithFixedDelay(runnableTask, 1, 1, TimeUnit.SECONDS);
+        scheduledPool.schedule(runnableTask, 1,TimeUnit.SECONDS);
+        //ScheduledFuture sf = scheduledPool.schedule(callabledelayedTask, 4, TimeUnit.SECONDS);
+        
 		logger.trace("Init done!");
 	}
 	
@@ -47,14 +57,14 @@ public class Controller {
 				.add("pumpState",pump.getState().toString())
 				.add("valveState",valve.getState().toString())
 				.build();
-		rest.doPost("api/tank",json);
+		try {
+			rest.post("api/tank",json);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			logger.error(e);
+		}
 	}
 	
-	private void startPolling() {
-		timer = new Timer();
-		timer.schedule(new Poll(),0,pollInterval * 1000);
-    }
-    
     private void startFill() {
 		try {
 			valve.open();
@@ -86,11 +96,11 @@ public class Controller {
 			tank.setState(Tank.State.FULL);
 			stopFill();
 		} 
-//		logger.trace("Level="+level+" "+tank.getState()); 
 		updateStatus();
 	}
 	
-	class Poll extends TimerTask {
+	Runnable runnableTask = new Runnable() {
+		@Override
 		public void run() {
 			tank.updateLevel();
 			
@@ -98,8 +108,14 @@ public class Controller {
 				checkLevel();
 
 			flow.reset();
+			// schedule the next poll
+			if (tank.getState() == Tank.State.FILLING) {
+		        scheduledPool.schedule(runnableTask, FILL_INTERVAL,TimeUnit.SECONDS);
+			} else {
+		        scheduledPool.schedule(runnableTask, FULL_INTERVAL,TimeUnit.SECONDS);
+			}
 		}
-	}
+	};
 	
   	public static void main (String args[]) {
 		logger.info("Hello, Water World!");
