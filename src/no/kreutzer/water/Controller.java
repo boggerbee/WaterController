@@ -31,13 +31,15 @@ public class Controller {
 	private static int FULL_INTERVAL = 60;
 	private boolean autoFill = true;
 	private String id = "Almedalen25"; //@TODO: put in property-file
-	RESTService rest = new RESTService();
+	private RESTService rest = new RESTService();
+	private FullSensor fullSwitch;
 	
 	private void init() {
 		tank = new Tank();
 		valve = new Valve();
 		pump = new Pump();
 		flow = new FlowMeter();
+		fullSwitch = new FullSensor();
 		
         scheduledPool = Executors.newScheduledThreadPool(4);
         //scheduledPool.scheduleWithFixedDelay(runnableTask, 1, 1, TimeUnit.SECONDS);
@@ -56,6 +58,7 @@ public class Controller {
 				.add("state",tank.getState().toString())
 				.add("pumpState",pump.getState().toString())
 				.add("valveState",valve.getState().toString())
+			//	.add("fullSwitch",fullSwitch.getState().toString())
 				.build();
 		try {
 			rest.post("api/tank",json);
