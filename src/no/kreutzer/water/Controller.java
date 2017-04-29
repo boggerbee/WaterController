@@ -8,6 +8,8 @@ package no.kreutzer.water;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.pi4j.wiringpi.Gpio;
+
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -42,9 +44,12 @@ public class Controller {
 		fullSwitch = new FullSensor();
 		
         scheduledPool = Executors.newScheduledThreadPool(4);
-        //scheduledPool.scheduleWithFixedDelay(runnableTask, 1, 1, TimeUnit.SECONDS);
         scheduledPool.schedule(runnableTask, 1,TimeUnit.SECONDS);
-        //ScheduledFuture sf = scheduledPool.schedule(callabledelayedTask, 4, TimeUnit.SECONDS);
+        
+        // test WiringPi for output
+        if (Gpio.wiringPiSetup() == -1) {
+            logger.error(" ==>> GPIO SETUP FAILED");
+        }        
         
 		logger.trace("Init done!");
 	}
