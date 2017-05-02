@@ -13,6 +13,7 @@ public class Pump {
 	
 	/* Constructor */
 	public Pump () {
+		relay.setShutdownOptions(false,PinState.LOW);
 		off();
 	}
 	
