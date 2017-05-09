@@ -18,7 +18,9 @@ public class LevelMeter {
 			ADConverter = new ADS1115();
 		} catch (Exception e) {
 			logger.error("Error initializing ADS1115 "+e.getMessage());
-		}	}
+		}
+		logger.info("Initial level is :"+measurePercent());
+	}
 	
 	public int measureRaw() {
 		if (ADConverter == null) return 0;

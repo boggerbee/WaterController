@@ -18,6 +18,7 @@ public class Tank {
 	/* Constructor */
 	public Tank () {
 		// init level
+		logger.info("Start init");
 		levelMeter = new LevelMeter();
 		updateLevel();
 	}

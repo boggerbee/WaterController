@@ -21,6 +21,8 @@ import javax.json.JsonObject;
 import javax.json.Json;
 
 import no.kreutzer.utils.RESTService;
+import no.kreutzer.utils.SocketCommand;
+import no.kreutzer.utils.SocketServer;
 
 public class Controller {
     private static final Logger logger = LogManager.getLogger(Controller.class);
@@ -46,10 +48,29 @@ public class Controller {
         scheduledPool = Executors.newScheduledThreadPool(4);
         scheduledPool.schedule(runnableTask, 1,TimeUnit.SECONDS);
         
-        // test WiringPi for output
+        /*
         if (Gpio.wiringPiSetup() == -1) {
             logger.error(" ==>> GPIO SETUP FAILED");
-        }        
+        } */      
+        try {
+			new SocketServer(new SocketCommand() {
+				@Override
+				public void manualStart() {
+					logger.info("Start Manual fill");
+					autoFill = false;
+					startFill();
+				}
+
+				@Override
+				public void manualStop() {
+					logger.info("Stop manual fill");
+					autoFill = true;
+					stopFill();
+				}
+			});
+		} catch (IOException e) {
+			logger.error(e);
+		}
         
 		logger.trace("Init done!");
 	}
