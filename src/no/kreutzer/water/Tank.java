@@ -9,6 +9,7 @@ public class Tank {
 	public static final int UPPER_THRESHOLD = 90;
 	public static final int LOWER_THRESHOLD = 80;
 	private LevelMeter levelMeter;
+	private FullSensor fullSwitch;
 	
 	private float level = 0;
 	
@@ -20,6 +21,8 @@ public class Tank {
 		// init level
 		logger.info("Start init");
 		levelMeter = new LevelMeter();
+		fullSwitch = new FullSensor();
+
 		updateLevel();
 	}
 	
@@ -35,6 +38,9 @@ public class Tank {
 	}
 	public void setState(State st) {
 		state = st;
+	}
+	public FullSensor getFullSwitch() {
+		return fullSwitch;
 	}
 	
 }

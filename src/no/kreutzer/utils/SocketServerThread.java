@@ -26,14 +26,18 @@ public class SocketServerThread extends Thread {
         ) {
             String inputLine = in.readLine();
             logger.info("Got command: "+inputLine);
-            if (inputLine.equals("start")) {
-            	callback.manualStart();
-                out.println("Started manual fill");
-            } else if (inputLine.equals("stop")) {
-            	callback.manualStop();
-                out.println("Stopped manual fill");
+            if (inputLine.equals("startcal")) {
+            	callback.calStart(out);
+                out.println("Started calibration");
+            } else if (inputLine.equals("stopcal")) {
+            	callback.calStop(out);
+                out.println("Stopped calibration");
             } else {
             	out.println("Unknown command: "+inputLine);
+            	out.println("Usage: water <cmd>\n"+
+            			"Commands:\n"+
+            			" startcal -- start calibration\n"+
+            			" stopcal  -- stop calibration");
             }
             
             socket.close();

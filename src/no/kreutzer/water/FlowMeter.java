@@ -9,8 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.pi4j.io.gpio.*;
 import com.pi4j.io.gpio.event.*;
-import com.pi4j.io.gpio.trigger.*;
-import java.util.concurrent.Callable;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class FlowMeter {
@@ -21,10 +21,9 @@ public class FlowMeter {
 	private AtomicInteger pulseIncrement = new AtomicInteger();
 	private AtomicInteger pulseTotal = new AtomicInteger();
 	
-	private float lastFlow = 0;
+	private int pulsesPerLitre = 667; // calibrated number
 	
-	// Number of pulses per litre
-	private static int NUM_PULSES_PER_LITRE = 666;
+	private int pulsesPerSecond=0;
 	
 	/* Constructor */
 	public FlowMeter () {
@@ -37,20 +36,29 @@ public class FlowMeter {
 				}
             }
         });
+        Executors.newScheduledThreadPool(2).scheduleAtFixedRate(new Runnable() {
+	    		@Override
+	    		public void run() {
+	    			reset();
+	    		}
+	    	}, 1,1, TimeUnit.SECONDS);
+        
 	}
 	
-	// TODO: calculate real flow
+	// Return flow in liter/min
 	public float getFlow() {
-		return pulseIncrement.get();
+		return (pulsesPerSecond*60)/pulsesPerLitre;
 	}
 	public int getTotalCount() {
 		return pulseTotal.get();
 	}
+	public void setPPL(int ppl) {
+		pulsesPerLitre = ppl;
+	}
 	
 	// to be called every second
-	public void reset() {
-		int currentCount = pulseIncrement.getAndSet(0);
-		pulseTotal.addAndGet(currentCount);
-		lastFlow = currentCount/NUM_PULSES_PER_LITRE;
+	private void reset() {
+		pulsesPerSecond = pulseIncrement.get();
+		pulseTotal.addAndGet(pulseIncrement.getAndSet(0));
 	}
 }

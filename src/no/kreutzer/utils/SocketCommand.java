@@ -1,6 +1,8 @@
 package no.kreutzer.utils;
 
+import java.io.PrintWriter;
+
 public interface SocketCommand {
-	void manualStart();
-	void manualStop();
+	void calStart(PrintWriter out);
+	void calStop(PrintWriter out);
 }

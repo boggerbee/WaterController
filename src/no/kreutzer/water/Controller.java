@@ -8,11 +8,8 @@ package no.kreutzer.water;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.pi4j.wiringpi.Gpio;
-
 import java.io.IOException;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.io.PrintWriter;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,35 +33,41 @@ public class Controller {
 	private boolean autoFill = true;
 	private String id = "Almedalen25"; //@TODO: put in property-file
 	private RESTService rest = new RESTService();
-	private FullSensor fullSwitch;
+	
+	private int startCnt;
 	
 	private void init() {
 		tank = new Tank();
 		valve = new Valve();
 		pump = new Pump();
 		flow = new FlowMeter();
-		fullSwitch = new FullSensor();
 		
         scheduledPool = Executors.newScheduledThreadPool(4);
         scheduledPool.schedule(runnableTask, 1,TimeUnit.SECONDS);
         
-        /*
-        if (Gpio.wiringPiSetup() == -1) {
-            logger.error(" ==>> GPIO SETUP FAILED");
-        } */      
         try {
 			new SocketServer(new SocketCommand() {
 				@Override
-				public void manualStart() {
-					logger.info("Start Manual fill");
+				public void calStart(PrintWriter out) {
+					logger.info("Start calibration, fill a known amount of water");
 					autoFill = false;
+					startCnt = flow.getTotalCount();
 					startFill();
+					out.println("Flow meter reads: ["+flow.getFlow()+"/"+startCnt+"]");
 				}
 
 				@Override
-				public void manualStop() {
-					logger.info("Stop manual fill");
+				public void calStop(PrintWriter out) {
+					logger.info("Stop calibration");
 					autoFill = true;
+					
+					int stopCnt = flow.getTotalCount();
+					int ppl = stopCnt-startCnt;
+					flow.setPPL(ppl); //assumes volume is 1 litre
+					
+					out.println("Pulses: "+ppl);
+					out.println("Flow meter reads: ["+flow.getFlow()+"/"+stopCnt+"]");
+					
 					stopFill();
 				}
 			});
@@ -84,7 +87,7 @@ public class Controller {
 				.add("state",tank.getState().toString())
 				.add("pumpState",pump.getState().toString())
 				.add("valveState",valve.getState().toString())
-			//	.add("fullSwitch",fullSwitch.getState().toString())
+				//.add("fullSwitch",tank.getFullSwitch().getState().toString())
 				.build();
 		try {
 			rest.post("api/tank",json);
@@ -133,10 +136,9 @@ public class Controller {
 		public void run() {
 			tank.updateLevel();
 			
-			if (autoFill)
+			if (autoFill) {
 				checkLevel();
-
-			flow.reset();
+			}
 			// schedule the next poll
 			if (tank.getState() == Tank.State.FILLING) {
 		        scheduledPool.schedule(runnableTask, FILL_INTERVAL,TimeUnit.SECONDS);
