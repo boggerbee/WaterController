@@ -30,25 +30,36 @@ public class SocketServerThread extends Thread {
             StringTokenizer st = new StringTokenizer(inputLine);
             
             String cmd = st.nextToken();
-            if (cmd.equals("calibrate")) {
-            	doCalibrate(st.nextToken());
-            } else if (inputLine.equals("mode")) {
-            	doMode(st.nextToken());
+            String opt;
+            if (st.hasMoreTokens()) {
+            	opt = st.nextToken();
+                if (cmd.equals("calibrate")) {
+                	doCalibrate(opt);
+                } else if (cmd.equals("mode")) {
+                	doMode(opt);
+                } else {
+                	printUsage(inputLine);
+                }
             } else {
-            	out.println("Unknown command: "+inputLine);
-            	out.println("Usage: water <cmd> <option>\n"+
-            			"Commands:\n"+
-            			" calibrate [start|stop]	-- start/stop calibration\n"+
-            			" mode  	[0,1,2]			-- fill mode, 0:off, 1:slow, 2:fast");
+            	printUsage(inputLine);
             }
             
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
-        }
+            logger.error(e);
+        } 
     }
     
-    private void doMode(String cmd) {
+    private void printUsage(String in) {
+    	out.println("Unknown command: "+in);
+    	out.println("Usage: water <cmd> <option>\n"+
+    			"Commands:\n"+
+    			" calibrate [start|stop]	-- start/stop calibration\n"+
+    			" mode  	[0,1,2]			-- fill mode, 0:off, 1:slow, 2:fast");
+		
+	}
+
+	private void doMode(String cmd) {
 		try {
 			int mode = Integer.parseInt(cmd);
 			callback.setMode(out, mode);

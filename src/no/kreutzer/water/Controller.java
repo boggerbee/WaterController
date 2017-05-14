@@ -122,7 +122,7 @@ public class Controller {
 			updateStatus();
 			
 			// schedule the next poll
-			if (tank.getState() == Tank.State.FILLING) {
+			if (tank.getState() == Tank.State.FILLING && !mode.equals(Mode.OFF)) {
 		        scheduledPool.schedule(runnableTask, FILL_INTERVAL,TimeUnit.SECONDS);
 			} else {
 		        scheduledPool.schedule(runnableTask, FULL_INTERVAL,TimeUnit.SECONDS);
@@ -162,17 +162,29 @@ public class Controller {
 			case 0: 
 				mode = Mode.OFF;
 				out.println("Mode set to OFF");
+				if (tank.getState().equals(Tank.State.FILLING)) {
+					valve.close();
+					pump.off();
+				}
 				break;
 			case 1: 
 				mode = Mode.SLOW;
 				out.println("Mode set to SLOW");
+				if (tank.getState().equals(Tank.State.FILLING)) {
+					pump.off();
+					valve.open();
+				}
 				break;
 			case 2: 
 				mode = Mode.FAST;
 				out.println("Mode set to FAST");
+				if (tank.getState().equals(Tank.State.FILLING)) {
+					valve.open();
+					pump.on();
+				}
 				break;
 			default:
-				out.println("Unknown mode: "+mode);
+				out.println("Unknown mode: "+m);
 			}
 			
 		}		
