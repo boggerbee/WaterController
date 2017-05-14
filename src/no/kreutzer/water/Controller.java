@@ -69,7 +69,7 @@ public class Controller {
 				.add("state",tank.getState().toString())
 				.add("pumpState",pump.getState().toString())
 				.add("valveState",valve.getState().toString())
-				//.add("fullSwitch",tank.getFullSwitch().getState().toString())
+				.add("switchState",tank.getFullSwitch().getState().toString())
 				.build();
 		try {
 			rest.post("api/tank",json);

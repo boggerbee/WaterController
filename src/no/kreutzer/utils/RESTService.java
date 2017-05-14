@@ -22,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 
 public class RESTService {
 	private final String SERVER_URL = "http://data.kreutzer.no/dataserver";
+//	private final String SERVER_URL = "http://192.168.10.123:8088";
     private static final Logger logger = LogManager.getLogger(RESTService.class);
 	
 	public RESTService() {
