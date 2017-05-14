@@ -5,4 +5,5 @@ import java.io.PrintWriter;
 public interface SocketCommand {
 	void calStart(PrintWriter out);
 	void calStop(PrintWriter out);
+	void setMode(PrintWriter out,int mode);
 }

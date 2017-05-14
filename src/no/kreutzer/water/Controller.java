@@ -30,9 +30,15 @@ public class Controller {
 	private ScheduledExecutorService scheduledPool;
 	private static int FILL_INTERVAL = 1;
 	private static int FULL_INTERVAL = 60;
-	private boolean autoFill = true;
-	private String id = "Almedalen25"; //@TODO: put in property-file
+
+	private String id = "Almedalen25"; 	//@TODO: put in property-file
 	private RESTService rest = new RESTService();
+	
+	public enum Mode {OFF	// No filling
+					,SLOW,	// Only open valve
+					FAST};	// Open valve and start pump
+	private Mode mode = Mode.FAST; 		//@TODO: read from property
+	private Mode tmpMode = mode;
 	
 	private int startCnt;
 	
@@ -46,31 +52,7 @@ public class Controller {
         scheduledPool.schedule(runnableTask, 1,TimeUnit.SECONDS);
         
         try {
-			new SocketServer(new SocketCommand() {
-				@Override
-				public void calStart(PrintWriter out) {
-					logger.info("Start calibration, fill a known amount of water");
-					autoFill = false;
-					startCnt = flow.getTotalCount();
-					startFill();
-					out.println("Flow meter reads: ["+flow.getFlow()+"/"+startCnt+"]");
-				}
-
-				@Override
-				public void calStop(PrintWriter out) {
-					logger.info("Stop calibration");
-					autoFill = true;
-					
-					int stopCnt = flow.getTotalCount();
-					int ppl = stopCnt-startCnt;
-					flow.setPPL(ppl); //assumes volume is 1 litre
-					
-					out.println("Pulses: "+ppl);
-					out.println("Flow meter reads: ["+flow.getFlow()+"/"+stopCnt+"]");
-					
-					stopFill();
-				}
-			});
+			new SocketServer(socketCommand);
 		} catch (IOException e) {
 			logger.error(e);
 		}
@@ -92,7 +74,6 @@ public class Controller {
 		try {
 			rest.post("api/tank",json);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			logger.error(e);
 		}
 	}
@@ -101,7 +82,7 @@ public class Controller {
 		try {
 			valve.open();
 			Thread.sleep(500);
-			pump.on();
+			if (mode.equals(Mode.FAST)) pump.on();
 		} catch (InterruptedException e) {
 			logger.error("Failed to sleep "+e.getMessage());
 		}
@@ -128,17 +109,18 @@ public class Controller {
 			tank.setState(Tank.State.FULL);
 			stopFill();
 		} 
-		updateStatus();
 	}
 	
-	Runnable runnableTask = new Runnable() {
+	private Runnable runnableTask = new Runnable() {
 		@Override
 		public void run() {
 			tank.updateLevel();
 			
-			if (autoFill) {
+			if (!mode.equals(Mode.OFF)) {
 				checkLevel();
 			}
+			updateStatus();
+			
 			// schedule the next poll
 			if (tank.getState() == Tank.State.FILLING) {
 		        scheduledPool.schedule(runnableTask, FILL_INTERVAL,TimeUnit.SECONDS);
@@ -146,6 +128,54 @@ public class Controller {
 		        scheduledPool.schedule(runnableTask, FULL_INTERVAL,TimeUnit.SECONDS);
 			}
 		}
+	};
+	
+	private SocketCommand socketCommand = new SocketCommand() {
+		@Override
+		public void calStart(PrintWriter out) {
+			logger.info("Start calibration, fill a known amount of water");
+			tmpMode = mode;
+			mode = Mode.OFF;
+			startCnt = flow.getTotalCount();
+			startFill();
+			out.println("Flow meter reads: ["+flow.getFlow()+"/"+startCnt+"]");
+		}
+
+		@Override
+		public void calStop(PrintWriter out) {
+			logger.info("Stop calibration");
+			mode = tmpMode;
+			
+			int stopCnt = flow.getTotalCount();
+			int ppl = stopCnt-startCnt;
+			//flow.setPPL(ppl); //assumes volume is 1 litre
+			
+			out.println("Pulses: "+ppl);
+			out.println("Flow meter reads: ["+flow.getFlow()+"/"+stopCnt+"]");
+			
+			stopFill();
+		}
+
+		@Override
+		public void setMode(PrintWriter out, int m) {
+			switch(m) {
+			case 0: 
+				mode = Mode.OFF;
+				out.println("Mode set to OFF");
+				break;
+			case 1: 
+				mode = Mode.SLOW;
+				out.println("Mode set to SLOW");
+				break;
+			case 2: 
+				mode = Mode.FAST;
+				out.println("Mode set to FAST");
+				break;
+			default:
+				out.println("Unknown mode: "+mode);
+			}
+			
+		}		
 	};
 	
   	public static void main (String args[]) {

@@ -21,7 +21,7 @@ public class FlowMeter {
 	private AtomicInteger pulseIncrement = new AtomicInteger();
 	private AtomicInteger pulseTotal = new AtomicInteger();
 	
-	private int pulsesPerLitre = 667; // calibrated number
+	private int pulsesPerLitre = 585; // calibrated number; 5846 on 10 L
 	
 	private int pulsesPerSecond=0;
 	
