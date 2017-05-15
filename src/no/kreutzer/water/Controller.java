@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import javax.json.JsonObject;
 import javax.json.Json;
 
+import no.kreutzer.utils.Config;
 import no.kreutzer.utils.RESTService;
 import no.kreutzer.utils.SocketCommand;
 import no.kreutzer.utils.SocketServer;
@@ -192,6 +193,8 @@ public class Controller {
 	
   	public static void main (String args[]) {
 		logger.info("Hello, Water World!");
+		
+		Config conf = new Config();
 		
 		Controller controller = new Controller();
 		controller.init();

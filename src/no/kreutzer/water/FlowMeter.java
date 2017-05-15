@@ -33,6 +33,7 @@ public class FlowMeter {
                 if (event.getState().isHigh()) {
 					//logger.info(event.getPin() + " = " + event.getState() + " cnt:"+pulseIncrement);  
 					pulseIncrement.incrementAndGet();
+					pulseTotal.incrementAndGet();
 				}
             }
         });
@@ -47,7 +48,7 @@ public class FlowMeter {
 	
 	// Return flow in liter/min
 	public float getFlow() {
-		return (pulsesPerSecond*60)/pulsesPerLitre;
+		return ((float)pulsesPerSecond*60)/(float)pulsesPerLitre;
 	}
 	public int getTotalCount() {
 		return pulseTotal.get();
@@ -58,7 +59,6 @@ public class FlowMeter {
 	
 	// to be called every second
 	private void reset() {
-		pulsesPerSecond = pulseIncrement.get();
-		pulseTotal.addAndGet(pulseIncrement.getAndSet(0));
+		pulsesPerSecond = pulseIncrement.getAndSet(0);
 	}
 }
