@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Config {
+    private static final Logger logger = LogManager.getLogger(Config.class);
 	private Properties prop;
 	
 	public Properties getProperties() {
@@ -19,7 +23,7 @@ public class Config {
     		String filename = "water.properties";
     		input = Config.class.getClassLoader().getResourceAsStream(filename);
     		if(input==null){
-    	            System.out.println("Sorry, unable to find " + filename);
+    	            logger.error("Sorry, unable to find " + filename);
     		    return;
     		}
 
@@ -27,7 +31,7 @@ public class Config {
     		prop.load(input);
 
             //get the property value and print it out
-            System.out.println(prop.getProperty("usr"));
+            logger.info("usr="+prop.getProperty("usr"));
 
     	} catch (IOException ex) {
     		ex.printStackTrace();

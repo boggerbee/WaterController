@@ -18,8 +18,13 @@ public class FullSensor {
     private GpioPinDigitalInput sensor = gpio.provisionDigitalInputPin(RaspiPin.GPIO_00,"Full Sensor", PinPullResistance.PULL_DOWN); // GPIO_00 = BCM 17
     public enum State {TRIGGERED,OPEN};
     private State state;
+    private FullEventHandler fullEvent;
    
-    public FullSensor() {
+    public void setFullEventHandler(FullEventHandler fullEvent) {
+		this.fullEvent = fullEvent;
+	}
+
+	public FullSensor() {
         // set shutdown state for this input pin
         sensor.setShutdownOptions(true);
         
@@ -33,6 +38,7 @@ public class FullSensor {
                 // display pin state on console
                 setState(stateMap(event.getState()));
                 logger.info(" --> Fullstate: " + event.getPin() + " = " + event.getState()+ " -> "+state);
+                if (fullEvent != null) fullEvent.onChange(state);
             }
         });
     	

@@ -21,6 +21,8 @@ import no.kreutzer.utils.Config;
 import no.kreutzer.utils.RESTService;
 import no.kreutzer.utils.SocketCommand;
 import no.kreutzer.utils.SocketServer;
+import no.kreutzer.utils.WebSocketService;
+import no.kreutzer.water.FullSensor.State;
 
 public class Controller {
     private static final Logger logger = LogManager.getLogger(Controller.class);
@@ -49,11 +51,19 @@ public class Controller {
 		pump = new Pump();
 		flow = new FlowMeter();
 		
+		tank.getFullSwitch().setFullEventHandler(new FullEventHandler() {
+			@Override
+			public void onChange(State state) {
+				postEvent("fullSwitch",state.toString());
+			}
+		});
+		
         scheduledPool = Executors.newScheduledThreadPool(4);
         scheduledPool.schedule(runnableTask, 1,TimeUnit.SECONDS);
         
         try {
-			new SocketServer(socketCommand);
+			new SocketServer(socketCommand);		// for cli interface
+//			new WebSocketService(socketCommand);	// for web interface
 		} catch (IOException e) {
 			logger.error(e);
 		}
@@ -61,7 +71,7 @@ public class Controller {
 		logger.trace("Init done!");
 	}
 	
-	private void updateStatus() {
+	private void postTank() {
 		
 		JsonObject json = Json.createObjectBuilder()
 				.add("id",id)
@@ -79,11 +89,27 @@ public class Controller {
 		}
 	}
 	
+	private void postEvent(String key, String value) {
+		
+		JsonObject json = Json.createObjectBuilder()
+				.add("id",id)
+				.add("mode",mode.toString())
+				.add("key",key)
+				.add("value",value)
+				.build();
+		try {
+			rest.post("api/controller",json);
+		} catch (IOException e) {
+			logger.error(e);
+		}
+	}
+	
     private void startFill() {
 		try {
 			valve.open();
 			Thread.sleep(500);
 			if (mode.equals(Mode.FAST)) pump.on();
+			postEvent("tank",tank.getState().toString());
 		} catch (InterruptedException e) {
 			logger.error("Failed to sleep "+e.getMessage());
 		}
@@ -94,6 +120,7 @@ public class Controller {
 			pump.off();
 			Thread.sleep(500);
 			valve.close();
+			postEvent("tank",tank.getState().toString());
 		} catch (InterruptedException e) {
 			logger.error("Failed to sleep "+e.getMessage());
 		}
@@ -120,7 +147,7 @@ public class Controller {
 			if (!mode.equals(Mode.OFF)) {
 				checkLevel();
 			}
-			updateStatus();
+			postTank();
 			
 			// schedule the next poll
 			if (tank.getState() == Tank.State.FILLING && !mode.equals(Mode.OFF)) {
@@ -194,10 +221,11 @@ public class Controller {
   	public static void main (String args[]) {
 		logger.info("Hello, Water World!");
 		
-		Config conf = new Config();
+		//Config conf = new Config();
 		
 		Controller controller = new Controller();
 		controller.init();
+		
 	}
 }
 
