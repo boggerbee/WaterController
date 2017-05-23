@@ -94,6 +94,7 @@ public class Controller {
 		JsonObject json = Json.createObjectBuilder()
 				.add("id",id)
 				.add("mode",mode.toString())
+				.add("flow",flow.getTotalCount())
 				.add("key",key)
 				.add("value",value)
 				.build();
