@@ -37,6 +37,8 @@ public class SocketServerThread extends Thread {
                 	doCalibrate(opt);
                 } else if (cmd.equals("mode")) {
                 	doMode(opt);
+                } else if (cmd.equals("full")) {
+                	doFull(opt);
                 } else {
                 	printUsage(inputLine);
                 }
@@ -50,13 +52,23 @@ public class SocketServerThread extends Thread {
         } 
     }
     
-    private void printUsage(String in) {
+	private void printUsage(String in) {
     	out.println("Unknown command: "+in);
     	out.println("Usage: water <cmd> <option>\n"+
     			"Commands:\n"+
     			" calibrate [start|stop]	-- start/stop calibration\n"+
-    			" mode  	[0,1,2]			-- fill mode, 0:off, 1:slow, 2:fast");
+    			" mode  	[0,1,2]			-- fill mode, 0:off, 1:slow, 2:fast\n"+
+				" full  	[0,1]			-- full mode, 0:switch, 1:level meter");
 		
+	}
+
+    private void doFull(String opt) {
+		try {
+			int mode = Integer.parseInt(opt);
+			callback.setFull(out, mode);
+		} catch (NumberFormatException e) {
+			out.println("Invalid option: "+opt);
+		}	
 	}
 
 	private void doMode(String cmd) {

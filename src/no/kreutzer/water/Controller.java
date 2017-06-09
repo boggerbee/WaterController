@@ -22,7 +22,7 @@ import no.kreutzer.utils.RESTService;
 import no.kreutzer.utils.SocketCommand;
 import no.kreutzer.utils.SocketServer;
 import no.kreutzer.utils.WebSocketService;
-import no.kreutzer.water.FullSensor.State;
+import no.kreutzer.water.FullSwitch.State;
 
 public class Controller {
     private static final Logger logger = LogManager.getLogger(Controller.class);
@@ -55,6 +55,9 @@ public class Controller {
 			@Override
 			public void onChange(State state) {
 				postEvent("fullSwitch",state.toString());
+				if (tank.getMode() == Tank.FullMode.SWITCH) {
+					checkLevel();
+				};
 			}
 		});
 		
@@ -63,7 +66,7 @@ public class Controller {
         
         try {
 			new SocketServer(socketCommand);		// for cli interface
-//			new WebSocketService(socketCommand);	// for web interface
+			new WebSocketService(socketCommand);	// for web interface
 		} catch (IOException e) {
 			logger.error(e);
 		}
@@ -128,23 +131,20 @@ public class Controller {
 	}
     
     private void checkLevel() {
-		float level = tank.getLevel();
-		if (level < Tank.LOWER_THRESHOLD && tank.getState() != Tank.State.FILLING) {
+		if(!tank.isFull() && !tank.isFilling()) {
 			logger.info("Start filling");
 			tank.setState(Tank.State.FILLING);
 			startFill();
-		} else if (level >= Tank.UPPER_THRESHOLD && tank.getState() == Tank.State.FILLING) {
+		} else if (tank.isFull() && tank.isFilling()) {
 			logger.info("Stop filling");
 			tank.setState(Tank.State.FULL);
 			stopFill();
-		} 
+		}
 	}
 	
 	private Runnable runnableTask = new Runnable() {
 		@Override
 		public void run() {
-			tank.updateLevel();
-			
 			if (!mode.equals(Mode.OFF)) {
 				checkLevel();
 			}
@@ -216,6 +216,22 @@ public class Controller {
 				out.println("Unknown mode: "+m);
 			}
 			
+		}
+
+		@Override
+		public void setFull(PrintWriter out, int m) {
+			switch(m) {
+			case 0: 
+				tank.setMode(Tank.FullMode.SWITCH);
+				out.println("Full mode set to SWITCH");
+				break;
+			case 1: 
+				tank.setMode(Tank.FullMode.LEVEL);
+				out.println("Full mode set to LEVEL");
+				break;
+			default:
+				out.println("Unknown mode: "+m);
+			}
 		}		
 	};
 	
