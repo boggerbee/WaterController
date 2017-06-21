@@ -1,4 +1,5 @@
 # WaterController
 ## Prerequisites
+* Rasbian (with Java 8)
 * Apache Ant
-* JDK 1.8
+* [Pi4J](http://pi4j.com/)
