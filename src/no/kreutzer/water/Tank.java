@@ -3,6 +3,7 @@ package no.kreutzer.water;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import no.kreutzer.test.FullSwitchTest;
 import no.kreutzer.water.FullSwitch.State;
 
 public class Tank {
@@ -67,5 +68,10 @@ public class Tank {
 	
 	public FullMode getMode() {
 		return mode;
+	}
+
+
+	public void setFullSensor(FullSensor fs) {
+		fullSensor = fs;
 	}
 }

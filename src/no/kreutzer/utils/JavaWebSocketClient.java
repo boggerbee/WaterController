@@ -16,6 +16,17 @@ public class JavaWebSocketClient extends WebSocketClient {
     private static final Logger logger = LogManager.getLogger(JavaWebSocketClient.class);
 	private WebSocketMessageHandler msgHandler;
 	
+	public interface WebSocketCommandResponse {
+		void sendResponse(String response);
+	}
+	
+	public WebSocketCommandResponse responseImpl = new WebSocketCommandResponse() {
+		@Override
+		public void sendResponse(String response) {
+			send(response);
+		}
+	};
+	
 	public JavaWebSocketClient( URI serverUri , Draft draft ) {
 		super( serverUri, draft );
 	}
@@ -35,7 +46,7 @@ public class JavaWebSocketClient extends WebSocketClient {
 		if (message.equals("WHOAREYOU")) {
 			send("RPI");
 		} else if (msgHandler != null) {
-			msgHandler.onMessage(message);
+			msgHandler.onMessage(message,responseImpl);
 		}
 	}
 
@@ -59,6 +70,8 @@ public class JavaWebSocketClient extends WebSocketClient {
 	public void setMsgHandler(WebSocketMessageHandler msgHandler) {
 		this.msgHandler = msgHandler;
 	}
+	
+
 
 	public static void main( String[] args ) throws URISyntaxException {
 		JavaWebSocketClient c = new JavaWebSocketClient( new URI( "ws://localhost:8088/dataserver-0.1/websocket" ), new Draft_6455() ); // more about drafts here: http://github.com/TooTallNate/Java-WebSocket/wiki/Drafts

@@ -21,16 +21,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class RESTService {
-	private final String SERVER_URL = "http://data.kreutzer.no/dataserver";
-//	private final String SERVER_URL = "http://192.168.10.168:8088";
+	private String endPoint;
     private static final Logger logger = LogManager.getLogger(RESTService.class);
 	
-	public RESTService() {
+	public RESTService(String endpoint) {
+		this.endPoint = endpoint;
 	}
 	
 	public String get(String url) throws IOException {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
-		HttpGet httpGet = new HttpGet(SERVER_URL+"/"+url);
+		HttpGet httpGet = new HttpGet(endPoint+"/"+url);
 		CloseableHttpResponse response = httpclient.execute(httpGet);
 		HttpEntity entity;
 		
@@ -60,7 +60,7 @@ public class RESTService {
 
 	public void post(String url, JsonObject json) throws IOException {
 		CloseableHttpClient httpclient = HttpClients.createDefault();
-		HttpPost httpPost = new HttpPost(SERVER_URL+"/"+url);
+		HttpPost httpPost = new HttpPost(endPoint+"/"+url);
 		StringEntity entity = new StringEntity(json.toString());
 		httpPost.setEntity(entity); 
 		CloseableHttpResponse response = httpclient.execute(httpPost);

@@ -17,7 +17,8 @@ import java.util.concurrent.TimeUnit;
 import javax.json.JsonObject;
 import javax.json.Json;
 
-import no.kreutzer.utils.Config;
+import no.kreutzer.test.FullSwitchTest;
+import no.kreutzer.utils.ConfigService;
 import no.kreutzer.utils.RESTService;
 import no.kreutzer.utils.SocketCommand;
 import no.kreutzer.utils.SocketServer;
@@ -34,13 +35,14 @@ public class Controller {
 	private static int FILL_INTERVAL = 1;
 	private static int FULL_INTERVAL = 60;
 
-	private String id = "Almedalen25"; 	//@TODO: put in property-file
-	private RESTService rest = new RESTService();
+	private ConfigService conf = new ConfigService();
+	private RESTService rest = new RESTService(conf.getConfig().getRestEndPoint());
 	
 	public enum Mode {OFF	// No filling
 					,SLOW,	// Only open valve
-					FAST};	// Open valve and start pump
-	private Mode mode = Mode.FAST; 		//@TODO: read from property
+					FAST,	// Open valve and start pump
+					CAL};	// calibration mode
+	private Mode mode = conf.getConfig().getFillMode(); //BUG: needs update when changed. 		
 	private Mode tmpMode = mode;
 	
 	private int startCnt;
@@ -64,20 +66,21 @@ public class Controller {
         scheduledPool = Executors.newScheduledThreadPool(4);
         scheduledPool.schedule(runnableTask, 1,TimeUnit.SECONDS);
         
+		new WebSocketService(socketCommand, conf.getConfig().getWsEndPoint());	// for web interface
+/*		
         try {
 			new SocketServer(socketCommand);		// for cli interface
-			new WebSocketService(socketCommand);	// for web interface
 		} catch (IOException e) {
 			logger.error(e);
 		}
-        
-		logger.trace("Init done!");
+ */       
+		logger.info("Init done!");
 	}
 	
 	private void postTank() {
 		
 		JsonObject json = Json.createObjectBuilder()
-				.add("id",id)
+				.add("id",conf.getConfig().getId())
 				.add("level",tank.getLevel())
 				.add("flow",flow.getFlow())
 				.add("state",tank.getState().toString())
@@ -95,7 +98,7 @@ public class Controller {
 	private void postEvent(String key, String value) {
 		
 		JsonObject json = Json.createObjectBuilder()
-				.add("id",id)
+				.add("id",conf.getConfig().getId())
 				.add("mode",mode.toString())
 				.add("flow",flow.getTotalCount())
 				.add("key",key)
@@ -112,7 +115,7 @@ public class Controller {
 		try {
 			valve.open();
 			Thread.sleep(500);
-			if (mode.equals(Mode.FAST)) pump.on();
+			if (mode == Mode.FAST || mode == Mode.CAL) pump.on();
 			postEvent("tank",tank.getState().toString());
 		} catch (InterruptedException e) {
 			logger.error("Failed to sleep "+e.getMessage());
@@ -145,7 +148,7 @@ public class Controller {
 	private Runnable runnableTask = new Runnable() {
 		@Override
 		public void run() {
-			if (!mode.equals(Mode.OFF)) {
+			if (mode != Mode.OFF && mode != Mode.CAL) {
 				checkLevel();
 			}
 			postTank();
@@ -161,84 +164,80 @@ public class Controller {
 	
 	private SocketCommand socketCommand = new SocketCommand() {
 		@Override
-		public void calStart(PrintWriter out) {
+		public String calStart() {
 			logger.info("Start calibration, fill a known amount of water");
 			tmpMode = mode;
-			mode = Mode.OFF;
+			mode = Mode.CAL;
 			startCnt = flow.getTotalCount();
 			startFill();
-			out.println("Flow meter reads: ["+flow.getFlow()+"/"+startCnt+"]");
+			return "Flow meter reads: (total/start) ["+flow.getFlow()+"/"+startCnt+"]";
 		}
 
 		@Override
-		public void calStop(PrintWriter out) {
+		public String calStop() {
 			logger.info("Stop calibration");
 			mode = tmpMode;
 			
 			int stopCnt = flow.getTotalCount();
 			int ppl = stopCnt-startCnt;
 			//flow.setPPL(ppl); //assumes volume is 1 litre
-			
-			out.println("Pulses: "+ppl);
-			out.println("Flow meter reads: ["+flow.getFlow()+"/"+stopCnt+"]");
-			
 			stopFill();
+			return "Flow meter reads: (total/stop) ["+flow.getFlow()+"/"+stopCnt+"] diff="+ppl;
 		}
 
 		@Override
-		public void setMode(PrintWriter out, int m) {
+		public String setMode(int m) {
 			switch(m) {
 			case 0: 
 				mode = Mode.OFF;
-				out.println("Mode set to OFF");
 				if (tank.getState().equals(Tank.State.FILLING)) {
 					valve.close();
 					pump.off();
 				}
-				break;
+				return "Mode set to OFF";
 			case 1: 
 				mode = Mode.SLOW;
-				out.println("Mode set to SLOW");
 				if (tank.getState().equals(Tank.State.FILLING)) {
 					pump.off();
 					valve.open();
 				}
-				break;
+				return "Mode set to SLOW";
 			case 2: 
 				mode = Mode.FAST;
-				out.println("Mode set to FAST");
 				if (tank.getState().equals(Tank.State.FILLING)) {
 					valve.open();
 					pump.on();
 				}
-				break;
+			return "Mode set to FILLING";
 			default:
-				out.println("Unknown mode: "+m);
+				return "Unknown mode: "+m;
 			}
 			
 		}
 
 		@Override
-		public void setFull(PrintWriter out, int m) {
+		public String setFull(int m) {
 			switch(m) {
 			case 0: 
 				tank.setMode(Tank.FullMode.SWITCH);
-				out.println("Full mode set to SWITCH");
-				break;
+				return "Full mode set to SWITCH";
 			case 1: 
 				tank.setMode(Tank.FullMode.LEVEL);
-				out.println("Full mode set to LEVEL");
-				break;
+				return "Full mode set to LEVEL";
 			default:
-				out.println("Unknown mode: "+m);
+				return "Unknown mode: "+m;
 			}
+		}
+
+		@Override
+		public String testSwitch(int mode) {
+			//tank.setFullSensor(new FullSwitchTest());
+			return null;
 		}		
 	};
 	
   	public static void main (String args[]) {
 		logger.info("Hello, Water World!");
-		
-		//Config conf = new Config();
 		
 		Controller controller = new Controller();
 		controller.init();

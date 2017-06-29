@@ -39,6 +39,8 @@ public class SocketServerThread extends Thread {
                 	doMode(opt);
                 } else if (cmd.equals("full")) {
                 	doFull(opt);
+                } else if (cmd.equals("testsw")) {
+                	doTestSW(opt);
                 } else {
                 	printUsage(inputLine);
                 }
@@ -52,11 +54,21 @@ public class SocketServerThread extends Thread {
         } 
     }
     
+	private void doTestSW(String opt) {
+		try {
+			int mode = Integer.parseInt(opt);
+			out.println(callback.testSwitch(mode));
+		} catch (NumberFormatException e) {
+			out.println("Invalid option: "+opt);
+		}		
+	}
+
 	private void printUsage(String in) {
     	out.println("Unknown command: "+in);
     	out.println("Usage: water <cmd> <option>\n"+
     			"Commands:\n"+
     			" calibrate [start|stop]	-- start/stop calibration\n"+
+    			" testSW 	[1,0]			-- test FullSwitch, 1:on, 0:off\n"+
     			" mode  	[0,1,2]			-- fill mode, 0:off, 1:slow, 2:fast\n"+
 				" full  	[0,1]			-- full mode, 0:switch, 1:level meter");
 		
@@ -65,7 +77,7 @@ public class SocketServerThread extends Thread {
     private void doFull(String opt) {
 		try {
 			int mode = Integer.parseInt(opt);
-			callback.setFull(out, mode);
+			out.println(callback.setFull(mode));
 		} catch (NumberFormatException e) {
 			out.println("Invalid option: "+opt);
 		}	
@@ -74,7 +86,7 @@ public class SocketServerThread extends Thread {
 	private void doMode(String cmd) {
 		try {
 			int mode = Integer.parseInt(cmd);
-			callback.setMode(out, mode);
+			out.println(callback.setMode(mode));
 		} catch (NumberFormatException e) {
 			out.println("Invalid option: "+cmd);
 		}
@@ -84,10 +96,10 @@ public class SocketServerThread extends Thread {
 		if (cmd==null) cmd="";
 		
     	if (cmd.equals("start")) {
-	    	callback.calStart(out);
+    		out.println(callback.calStart());
 	        out.println("Started calibration");
 	    } else if (cmd.equals("stop")) {
-	    	callback.calStop(out);
+	    	out.println(callback.calStop());
 	        out.println("Stopped calibration");
 	    } else {
 	        out.println("Unknown option: "+cmd);
