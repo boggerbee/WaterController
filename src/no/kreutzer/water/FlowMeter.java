@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FlowMeter {
     private static final Logger logger = LogManager.getLogger(FlowMeter.class);
 	final GpioController gpio = GpioFactory.getInstance();
-	final GpioPinDigitalInput flowPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_07,"Flow sensor",PinPullResistance.PULL_DOWN);
+	final GpioPinDigitalInput flowPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_07,"Flow sensor",PinPullResistance.PULL_UP);
 	
 	private AtomicInteger pulseIncrement = new AtomicInteger();
 	private AtomicInteger pulseTotal = new AtomicInteger();
