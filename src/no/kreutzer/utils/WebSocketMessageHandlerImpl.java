@@ -15,6 +15,8 @@ public class WebSocketMessageHandlerImpl implements WebSocketMessageHandler {
 			responseImpl.sendResponse(cmd.calStart());
 		} else if (message.equals("calStop")) {
 			responseImpl.sendResponse(cmd.calStop());
+		} else if (message.equals("getConfig")) {
+			responseImpl.sendResponse(cmd.getConfig());
 		} else {
 			responseImpl.sendResponse("UNKNOWN");
 		}

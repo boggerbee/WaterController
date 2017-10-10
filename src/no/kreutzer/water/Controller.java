@@ -49,6 +49,7 @@ public class Controller {
 	
 	private void init() {
 		tank = new Tank();
+		tank.setMode(conf.getConfig().getFullMode());
 		valve = new Valve();
 		pump = new Pump();
 		flow = new FlowMeter();
@@ -194,6 +195,8 @@ public class Controller {
 					valve.close();
 					pump.off();
 				}
+				conf.getConfig().setFillMode(mode);
+				conf.writeConfig();
 				return "Mode set to OFF";
 			case 1: 
 				mode = Mode.SLOW;
@@ -201,6 +204,8 @@ public class Controller {
 					pump.off();
 					valve.open();
 				}
+				conf.getConfig().setFillMode(mode);
+				conf.writeConfig();
 				return "Mode set to SLOW";
 			case 2: 
 				mode = Mode.FAST;
@@ -208,6 +213,8 @@ public class Controller {
 					valve.open();
 					pump.on();
 				}
+				conf.getConfig().setFillMode(mode);
+				conf.writeConfig();
 			return "Mode set to FILLING";
 			default:
 				return "Unknown mode: "+m;
@@ -233,6 +240,11 @@ public class Controller {
 		public String testSwitch(int mode) {
 			//tank.setFullSensor(new FullSwitchTest());
 			return null;
+		}
+
+		@Override
+		public String getConfig() {
+			return conf.getConfigAsJSON();
 		}		
 	};
 	

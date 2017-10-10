@@ -6,4 +6,5 @@ public interface SocketCommand {
 	String setMode(int mode);
 	String setFull(int mode);
 	String testSwitch(int mode);
+	String getConfig();
 }

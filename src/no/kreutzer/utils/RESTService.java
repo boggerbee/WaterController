@@ -2,9 +2,6 @@ package no.kreutzer.utils;
 
 import java.io.IOException;
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -26,6 +23,7 @@ public class RESTService {
 	
 	public RESTService(String endpoint) {
 		this.endPoint = endpoint;
+		logger.info("Created RESTService with endpoint: "+endpoint);
 	}
 	
 	public String get(String url) throws IOException {
@@ -66,11 +64,12 @@ public class RESTService {
 		CloseableHttpResponse response = httpclient.execute(httpPost);
 
 		try {
-			logger.info("Posting:"+json.toString());
+			logger.trace("Posting:"+json.toString());
 			HttpEntity e = response.getEntity();
 			EntityUtils.consume(e);
 		} finally {
 			response.close();
+			httpclient.close(); // redundant?
 		}		
 	}
 	

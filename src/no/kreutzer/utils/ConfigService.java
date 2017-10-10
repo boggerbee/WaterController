@@ -7,6 +7,8 @@ import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 public class ConfigService {
     private static final Logger logger = LogManager.getLogger(ConfigService.class);
@@ -53,5 +55,16 @@ public class ConfigService {
 	
 	public ConfigPOJO getConfig() {
 		return config;
+	}
+
+	public String getConfigAsJSON() {
+		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.WRAP_ROOT_VALUE);
+		try {
+			return mapper.writeValueAsString(config);
+		} catch (JsonProcessingException e) {
+			logger.error(e.getMessage());
+			return null;
+		}
 	}
 }

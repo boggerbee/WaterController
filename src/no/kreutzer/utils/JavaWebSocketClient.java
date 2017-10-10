@@ -45,6 +45,8 @@ public class JavaWebSocketClient extends WebSocketClient {
 		logger.info( "received: " + message );
 		if (message.equals("WHOAREYOU")) {
 			send("RPI");
+		} else if (message.equals("ACK")) {
+			send("Watercontroller connected");
 		} else if (msgHandler != null) {
 			msgHandler.onMessage(message,responseImpl);
 		}
@@ -58,7 +60,7 @@ public class JavaWebSocketClient extends WebSocketClient {
 	@Override
 	public void onClose( int code, String reason, boolean remote ) {
 		// The codecodes are documented in class org.java_websocket.framing.CloseFrame
-		logger.info( "Connection closed by " + ( remote ? "remote peer" : "us" ) );
+		logger.info( "Connection closed by " + ( remote ? "remote peer" : "us" ) + ", reason: "+reason );
 	}
 
 	@Override

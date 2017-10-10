@@ -18,10 +18,6 @@ public class WebSocketService {
 
             clientEndPoint.setMsgHandler(new WebSocketMessageHandlerImpl(cmd));
             clientEndPoint.connect();            
-
-        	logger.info("Send hello");
-            clientEndPoint.send("Hello from Raspberry Pi!");
-
         } catch (URISyntaxException ex) {
         	logger.error("URISyntaxException exception: " + ex.getMessage());
         }    	
@@ -58,6 +54,12 @@ public class WebSocketService {
 
 			@Override
 			public String testSwitch(int mode) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String getConfig() {
 				// TODO Auto-generated method stub
 				return null;
 			}
