@@ -63,6 +63,24 @@ public class WebSocketService {
 				// TODO Auto-generated method stub
 				return null;
 			}
+
+			@Override
+			public String pump(int i) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String valve(int i) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String getState() {
+				// TODO Auto-generated method stub
+				return null;
+			}
 		},uri);
 	}    
 }
