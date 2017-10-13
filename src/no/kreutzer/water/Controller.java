@@ -245,6 +245,39 @@ public class Controller {
 		@Override
 		public String getConfig() {
 			return conf.getConfigAsJSON();
+		}
+
+		@Override
+		public String pump(int i) {
+			if (i > 0 ) {
+				pump.on();
+			} else {
+				pump.off();
+			}
+			return getState();
+		}
+
+		@Override
+		public String valve(int i) {
+			if (i > 0 ) {
+				valve.open();
+			} else {
+				valve.close();
+			}
+			return getState();
+		}
+
+		@Override
+		public String getState() {
+			JsonObject json = Json.createObjectBuilder()
+					.add("state",Json.createObjectBuilder()
+						.add("pump",pump.getState().toString())
+						.add("valve",valve.getState().toString())
+						.add("switch",tank.getFullSwitch().getState().toString())
+						.add("level",tank.getLevel())
+						.add("flow",flow.getFlow())
+						.build()).build();			
+			return json.toString();
 		}		
 	};
 	
