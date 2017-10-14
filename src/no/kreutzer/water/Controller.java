@@ -215,7 +215,7 @@ public class Controller {
 				}
 				conf.getConfig().setFillMode(mode);
 				conf.writeConfig();
-			return "Mode set to FILLING";
+			return "Mode set to FAST";
 			default:
 				return "Unknown mode: "+m;
 			}
@@ -227,9 +227,13 @@ public class Controller {
 			switch(m) {
 			case 0: 
 				tank.setMode(Tank.FullMode.SWITCH);
+				conf.getConfig().setFullMode(Tank.FullMode.SWITCH);
+				conf.writeConfig();
 				return "Full mode set to SWITCH";
 			case 1: 
 				tank.setMode(Tank.FullMode.LEVEL);
+				conf.getConfig().setFullMode(Tank.FullMode.LEVEL);
+				conf.writeConfig();
 				return "Full mode set to LEVEL";
 			default:
 				return "Unknown mode: "+m;

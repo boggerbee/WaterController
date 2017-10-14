@@ -25,6 +25,10 @@ public class WebSocketMessageHandlerImpl implements WebSocketMessageHandler {
 			responseImpl.sendResponse(cmd.setMode(1));
 		} else if (message.equals("setFillModeFAST")) {
 			responseImpl.sendResponse(cmd.setMode(2));
+		} else if (message.equals("setFullModeSWITCH")) {
+			responseImpl.sendResponse(cmd.setFull(0));
+		} else if (message.equals("setFullModeLEVEL")) {
+			responseImpl.sendResponse(cmd.setFull(1));
 		} else if (message.equals("startPump")) {
 			responseImpl.sendResponse(cmd.pump(1));
 		} else if (message.equals("stopPump")) {
