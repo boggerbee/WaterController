@@ -37,6 +37,7 @@ public class Controller {
 
 	private ConfigService conf = new ConfigService();
 	private RESTService rest = new RESTService(conf.getConfig().getRestEndPoint());
+	private WebSocketService ws;
 	
 	public enum Mode {OFF	// No filling
 					,SLOW,	// Only open valve
@@ -48,11 +49,22 @@ public class Controller {
 	private int startCnt;
 	
 	private void init() {
+		ws = new WebSocketService(socketCommand, conf.getConfig().getWsEndPoint());
 		tank = new Tank();
 		tank.setMode(conf.getConfig().getFullMode());
 		valve = new Valve();
 		pump = new Pump();
-		flow = new FlowMeter();
+		flow = new FlowMeter(new FlowHandler() {
+			@Override
+			public void onCount(int total, int current) {
+				JsonObject json = Json.createObjectBuilder()
+						.add("flow",Json.createObjectBuilder()
+							.add("total",total)
+							.add("current",current)
+							.build()).build();					
+				ws.sendMessage(json.toString());
+			}
+		});
 		
 		tank.getFullSwitch().setFullEventHandler(new FullEventHandler() {
 			@Override
@@ -67,7 +79,6 @@ public class Controller {
         scheduledPool = Executors.newScheduledThreadPool(4);
         scheduledPool.schedule(runnableTask, 1,TimeUnit.SECONDS);
         
-		new WebSocketService(socketCommand, conf.getConfig().getWsEndPoint());	// for web interface
 /*		
         try {
 			new SocketServer(socketCommand);		// for cli interface

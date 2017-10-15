@@ -34,6 +34,7 @@ public class ConfigService {
 	
 	public void writeConfig() {
 		ObjectMapper mapper = new ObjectMapper();
+		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
 		try {
 			mapper.writeValue(new File(fileName), config);

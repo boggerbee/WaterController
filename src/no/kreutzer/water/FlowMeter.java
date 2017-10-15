@@ -24,9 +24,12 @@ public class FlowMeter {
 	private int pulsesPerLitre = 585; // calibrated number; 5846 on 10 L
 	
 	private int pulsesPerSecond=0;
+	private FlowHandler flowHandler;
 	
 	/* Constructor */
-	public FlowMeter () {
+	public FlowMeter (FlowHandler f) {
+		flowHandler = f;
+		
         flowPin.addListener(new GpioPinListenerDigital() {
             @Override
             public void handleGpioPinDigitalStateChangeEvent(GpioPinDigitalStateChangeEvent event) {
@@ -34,6 +37,7 @@ public class FlowMeter {
 					//logger.info(event.getPin() + " = " + event.getState() + " cnt:"+pulseIncrement);  
 					pulseIncrement.incrementAndGet();
 					pulseTotal.incrementAndGet();
+					if (flowHandler!=null) flowHandler.onCount(pulseTotal.get(),pulsesPerSecond);
 				}
             }
         });
