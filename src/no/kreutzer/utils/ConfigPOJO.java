@@ -14,7 +14,15 @@ public class ConfigPOJO {
 	private String wsEndPoint = "ws://data.kreutzer.no/dataserver/websocket";
 	private long totalFlow = 0;
 	private Tank.FullMode fullMode = Tank.FullMode.SWITCH;
+	private String flowSensorClassName = "no.kreutzer.water.HallEffectFlowMeter";
+	private boolean liveFlow = false;
 	
+	public String getFlowSensorClassName() {
+		return flowSensorClassName;
+	}
+	public void setFlowSensorClassName(String flowSensorClassName) {
+		this.flowSensorClassName = flowSensorClassName;
+	}
 	public String getId() {
 		return id;
 	}
@@ -50,6 +58,12 @@ public class ConfigPOJO {
 	}
 	public void setFullMode(Tank.FullMode fullMode) {
 		this.fullMode = fullMode;
+	}
+	public void setLiveFlow(boolean b) {
+		liveFlow = b;
+	}
+	public boolean isLiveFlow() {
+		return liveFlow;
 	}
 
 }

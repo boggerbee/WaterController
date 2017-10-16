@@ -10,4 +10,5 @@ public interface SocketCommand {
 	String pump(int i);
 	String valve(int i);
 	String getState();
+	String live(boolean b);
 }

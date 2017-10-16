@@ -37,6 +37,12 @@ public class WebSocketMessageHandlerImpl implements WebSocketMessageHandler {
 			responseImpl.sendResponse(cmd.valve(1));
 		} else if (message.equals("closeValve")) {
 			responseImpl.sendResponse(cmd.valve(0));
+		} else if (message.equals("liveOn")) {
+			responseImpl.sendResponse(cmd.live(true));
+		} else if (message.equals("liveOff")) {
+			responseImpl.sendResponse(cmd.live(false));
+		} else if (message.equals("No GUI")) {
+			//noop
 		} else {
 			responseImpl.sendResponse("UNKNOWN: "+message);
 		}

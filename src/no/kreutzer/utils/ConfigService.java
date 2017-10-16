@@ -2,6 +2,9 @@ package no.kreutzer.utils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,6 +12,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
+import no.kreutzer.water.FlowHandler;
+import no.kreutzer.water.FlowMeter;
 
 public class ConfigService {
     private static final Logger logger = LogManager.getLogger(ConfigService.class);
@@ -67,5 +73,18 @@ public class ConfigService {
 			logger.error(e.getMessage());
 			return null;
 		}
+	}
+	public FlowMeter getFlowSensorImpl(FlowHandler fh) {
+		try {
+			Class<?> clazz = Class.forName(config.getFlowSensorClassName());
+			Constructor<?> ctor = clazz.getConstructor(FlowHandler.class);
+			Object object;
+			object = ctor.newInstance(new Object[] { fh });
+			return (FlowMeter)object;
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

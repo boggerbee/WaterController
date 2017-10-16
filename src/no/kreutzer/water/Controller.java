@@ -34,19 +34,30 @@ public class Controller {
 	private ScheduledExecutorService scheduledPool;
 	private static int FILL_INTERVAL = 1;
 	private static int FULL_INTERVAL = 60;
-
 	private ConfigService conf = new ConfigService();
 	private RESTService rest = new RESTService(conf.getConfig().getRestEndPoint());
 	private WebSocketService ws;
-	
 	public enum Mode {OFF	// No filling
 					,SLOW,	// Only open valve
 					FAST,	// Open valve and start pump
 					CAL};	// calibration mode
 	private Mode mode = conf.getConfig().getFillMode(); //BUG: needs update when changed. 		
 	private Mode tmpMode = mode;
-	
 	private int startCnt;
+
+	private FlowHandler flowHandler = new FlowHandler() {
+		@Override
+		public void onCount(int total, int current) {
+			if (conf.getConfig().isLiveFlow()) {
+				JsonObject json = Json.createObjectBuilder()
+						.add("flow",Json.createObjectBuilder()
+							.add("total",total)
+							.add("current",current)
+							.build()).build();					
+				 ws.sendMessage(json.toString());
+			}
+		}
+	};
 	
 	private void init() {
 		ws = new WebSocketService(socketCommand, conf.getConfig().getWsEndPoint());
@@ -54,17 +65,7 @@ public class Controller {
 		tank.setMode(conf.getConfig().getFullMode());
 		valve = new Valve();
 		pump = new Pump();
-		flow = new FlowMeter(new FlowHandler() {
-			@Override
-			public void onCount(int total, int current) {
-				JsonObject json = Json.createObjectBuilder()
-						.add("flow",Json.createObjectBuilder()
-							.add("total",total)
-							.add("current",current)
-							.build()).build();					
-				ws.sendMessage(json.toString());
-			}
-		});
+		flow = conf.getFlowSensorImpl(flowHandler);
 		
 		tank.getFullSwitch().setFullEventHandler(new FullEventHandler() {
 			@Override
@@ -164,6 +165,8 @@ public class Controller {
 				checkLevel();
 			}
 			postTank();
+			conf.getConfig().setTotalFlow(flow.getTotalCount());
+			conf.writeConfig();
 			
 			// schedule the next poll
 			if (tank.getState() == Tank.State.FILLING && !mode.equals(Mode.OFF)) {
@@ -293,6 +296,13 @@ public class Controller {
 						.add("flow",flow.getFlow())
 						.build()).build();			
 			return json.toString();
+		}
+
+		@Override
+		public String live(boolean b) {
+			conf.getConfig().setLiveFlow(b);
+			conf.writeConfig();
+			return getConfig();
 		}		
 	};
 	
