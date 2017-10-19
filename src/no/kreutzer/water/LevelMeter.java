@@ -10,7 +10,7 @@ import no.kreutzer.water.Tank.State;
 public class LevelMeter implements FullSensor {
     private static final Logger logger = LogManager.getLogger(LevelMeter.class);
 	final GpioController gpio = GpioFactory.getInstance();
-	private ADS1115 ADConverter;
+	private ADS1115 adc;
 	private int MAX_VALUE = 6500;
 	private int MIN_VALUE = -4400;
 	
@@ -19,7 +19,7 @@ public class LevelMeter implements FullSensor {
 	/* Constructor */
 	public LevelMeter () {
 		try {
-			ADConverter = new ADS1115();
+			adc = new ADS1115();
 		} catch (Exception e) {
 			logger.error("Error initializing ADS1115 "+e.getMessage());
 		}
@@ -27,20 +27,21 @@ public class LevelMeter implements FullSensor {
 		level = measurePercent();
 	}
 	
-	public int measureRaw() {
-		if (ADConverter == null) return 0;
+	protected int measureRaw() {
+		if (adc == null) return 0;
 		try {
-			return ADConverter.read();
+			return adc.read();
 		} catch (IOException e) {
 			logger.error("Error reading water level "+e.getMessage());
 			return 0;
 		}
 	}
-	public float measurePercent() {
+	protected float measurePercent() {
 		float part = measureRaw() - MIN_VALUE;
 		float whole = MAX_VALUE - MIN_VALUE;
 		return (part*100)/whole;
 	}
+	
 	public float getLevel() {
 		level = measurePercent();
 		return level;

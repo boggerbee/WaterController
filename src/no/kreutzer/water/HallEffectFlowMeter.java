@@ -66,4 +66,9 @@ public class HallEffectFlowMeter implements FlowMeter {
 	private void reset() {
 		pulsesPerSecond = pulseIncrement.getAndSet(0);
 	}
+
+	@Override
+	public void setTotal(long total) {
+		pulseTotal.set((int)total);
+	}
 }

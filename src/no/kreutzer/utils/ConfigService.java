@@ -78,9 +78,7 @@ public class ConfigService {
 		try {
 			Class<?> clazz = Class.forName(config.getFlowSensorClassName());
 			Constructor<?> ctor = clazz.getConstructor(FlowHandler.class);
-			Object object;
-			object = ctor.newInstance(new Object[] { fh });
-			return (FlowMeter)object;
+			return (FlowMeter)ctor.newInstance(new Object[] { fh });
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();

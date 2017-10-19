@@ -47,14 +47,14 @@ public class Controller {
 
 	private FlowHandler flowHandler = new FlowHandler() {
 		@Override
-		public void onCount(int total, int current) {
+		public void onCount(long total, int current) {
 			if (conf.getConfig().isLiveFlow()) {
 				JsonObject json = Json.createObjectBuilder()
 						.add("flow",Json.createObjectBuilder()
 							.add("total",total)
 							.add("current",current)
-							.build()).build();					
-				 ws.sendMessage(json.toString());
+							.build()).build();
+				ws.sendMessage(json.toString());
 			}
 		}
 	};
@@ -66,6 +66,7 @@ public class Controller {
 		valve = new Valve();
 		pump = new Pump();
 		flow = conf.getFlowSensorImpl(flowHandler);
+		flow.setTotal(conf.getConfig().getTotalFlow());
 		
 		tank.getFullSwitch().setFullEventHandler(new FullEventHandler() {
 			@Override

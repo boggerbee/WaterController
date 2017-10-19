@@ -34,14 +34,16 @@ public class MockFlowMeter implements FlowMeter {
 
 	@Override
 	public int getTotalCount() {
-		// TODO Auto-generated method stub
 		return pulseTotal.get();
 	}
 
 	@Override
 	public void setPPL(int ppl) {
 		// TODO Auto-generated method stub
-		
+	}
+	@Override
+	public void setTotal(long total) {
+		pulseTotal.set((int)total);
 	}
 
 }
