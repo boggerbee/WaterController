@@ -1,10 +1,12 @@
 package no.kreutzer.water;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import no.kreutzer.test.FullSwitchTest;
-import no.kreutzer.water.FullSwitch.State;
+import no.kreutzer.utils.ConfigService;
 
 public class Tank {
     private static final Logger logger = LogManager.getLogger(Tank.class);
@@ -12,8 +14,9 @@ public class Tank {
 	public static final int UPPER_THRESHOLD = 90;
 	public static final int LOWER_THRESHOLD = 80;
 	
-	private LevelMeter levelMeter;
-	private FullSwitch fullSwitch;
+	@Inject	private ConfigService conf;
+	@Inject private LevelMeter levelMeter;
+	@Inject private FullSwitch fullSwitch;
 	
 	private FullSensor fullSensor;
 	
@@ -23,14 +26,14 @@ public class Tank {
 	private State state = State.FULL;
 	private FullMode mode = FullMode.SWITCH;
 	
-	/* Constructor */
 	public Tank () {
-		levelMeter = new LevelMeter();
-		fullSwitch = new FullSwitch();
-		
-		fullSensor = fullSwitch;
 	}
 	
+	@PostConstruct
+	public void init() {
+		setMode(conf.getConfig().getFullMode());
+		logger.info("Mode is: "+mode);
+	}	
 
 	public float getLevel() {
 		return levelMeter.getLevel();

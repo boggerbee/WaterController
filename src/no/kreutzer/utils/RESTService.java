@@ -10,6 +10,9 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.entity.StringEntity;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import javax.json.JsonObject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -20,10 +23,15 @@ import org.apache.logging.log4j.Logger;
 public class RESTService {
 	private String endPoint;
     private static final Logger logger = LogManager.getLogger(RESTService.class);
+    private @Inject ConfigService conf;
 	
-	public RESTService(String endpoint) {
-		this.endPoint = endpoint;
-		logger.info("Created RESTService with endpoint: "+endpoint);
+	public RESTService() {
+	}
+	
+	@PostConstruct
+	public void init() {
+		endPoint = conf.getConfig().getRestEndPoint();
+		logger.info("Created RESTService with endpoint: "+endPoint);
 	}
 	
 	public String get(String url) throws IOException {

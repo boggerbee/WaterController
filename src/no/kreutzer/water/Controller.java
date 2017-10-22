@@ -6,42 +6,43 @@
 package no.kreutzer.water;
 
 import org.apache.logging.log4j.LogManager;
+import org.jboss.weld.environment.se.Weld;
+import org.jboss.weld.environment.se.WeldContainer;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.json.JsonObject;
+import javax.inject.Inject;
 import javax.json.Json;
 
-import no.kreutzer.test.FullSwitchTest;
 import no.kreutzer.utils.ConfigService;
 import no.kreutzer.utils.RESTService;
 import no.kreutzer.utils.SocketCommand;
-import no.kreutzer.utils.SocketServer;
 import no.kreutzer.utils.WebSocketService;
 import no.kreutzer.water.FullSwitch.State;
 
 public class Controller {
     private static final Logger logger = LogManager.getLogger(Controller.class);
-	private Tank tank;
-	private Pump pump;
+    private @Inject	ConfigService conf;
+    private @Inject	Tank tank;
+    private @Inject	Pump pump;
+    private @Inject	Valve valve;
+    private @Inject	RESTService rest;
+	
 	private FlowMeter flow;
-	private Valve valve;
 	private ScheduledExecutorService scheduledPool;
 	private static int FILL_INTERVAL = 1;
 	private static int FULL_INTERVAL = 60;
-	private ConfigService conf = new ConfigService();
-	private RESTService rest = new RESTService(conf.getConfig().getRestEndPoint());
 	private WebSocketService ws;
 	public enum Mode {OFF	// No filling
 					,SLOW,	// Only open valve
 					FAST,	// Open valve and start pump
 					CAL};	// calibration mode
-	private Mode mode = conf.getConfig().getFillMode(); //BUG: needs update when changed. 		
+	private Mode mode; 		
 	private Mode tmpMode = mode;
 	private int startCnt;
 
@@ -60,11 +61,8 @@ public class Controller {
 	};
 	
 	private void init() {
+		mode = conf.getConfig().getFillMode(); 
 		ws = new WebSocketService(socketCommand, conf.getConfig().getWsEndPoint());
-		tank = new Tank();
-		tank.setMode(conf.getConfig().getFullMode());
-		valve = new Valve();
-		pump = new Pump();
 		flow = conf.getFlowSensorImpl(flowHandler);
 		flow.setTotal(conf.getConfig().getTotalFlow());
 		
@@ -309,10 +307,19 @@ public class Controller {
 	
   	public static void main (String args[]) {
 		logger.info("Hello, Water World!");
-		
-		Controller controller = new Controller();
-		controller.init();
-		
+		// Bootstrapping CDI
+		Weld weld = new Weld();
+		try (WeldContainer container = weld.initialize()) {
+			container.select(Controller.class).get().init();
+			while (true) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }
 

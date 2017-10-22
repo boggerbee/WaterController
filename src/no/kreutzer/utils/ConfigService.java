@@ -3,19 +3,21 @@ package no.kreutzer.utils;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+
+import javax.enterprise.context.ApplicationScoped;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import no.kreutzer.water.FlowHandler;
 import no.kreutzer.water.FlowMeter;
 
+
+@ApplicationScoped
 public class ConfigService {
     private static final Logger logger = LogManager.getLogger(ConfigService.class);
     private String fileName = "config.json";
