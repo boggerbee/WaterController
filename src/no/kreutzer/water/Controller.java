@@ -19,6 +19,7 @@ import javax.json.JsonObject;
 import javax.inject.Inject;
 import javax.json.Json;
 
+import no.kreutzer.pimoroni.AutomationHat;
 import no.kreutzer.utils.ConfigService;
 import no.kreutzer.utils.RESTService;
 import no.kreutzer.utils.SocketCommand;
@@ -45,6 +46,9 @@ public class Controller {
 	private Mode mode; 		
 	private Mode tmpMode = mode;
 	private int startCnt;
+	
+	private AutomationHat hat;
+	private AutomationHat.SNLight commsLight;
 
 	private FlowHandler flowHandler = new FlowHandler() {
 		@Override
@@ -79,6 +83,11 @@ public class Controller {
         scheduledPool = Executors.newScheduledThreadPool(4);
         scheduledPool.schedule(runnableTask, 1,TimeUnit.SECONDS);
         
+        hat = new AutomationHat();
+        commsLight = hat.getLight(AutomationHat.COMMS);        
+        hat.getLight(AutomationHat.POWER).on();        
+        //hat.getLight(AutomationHat.WARN).on();  
+        //hat.getOutput(AutomationHat.OUTPUT_2).high();
 /*		
         try {
 			new SocketServer(socketCommand);		// for cli interface
@@ -160,6 +169,7 @@ public class Controller {
 	private Runnable runnableTask = new Runnable() {
 		@Override
 		public void run() {
+			commsLight.on();
 			if (mode != Mode.OFF && mode != Mode.CAL) {
 				checkLevel();
 			}
@@ -173,6 +183,7 @@ public class Controller {
 			} else {
 		        scheduledPool.schedule(runnableTask, FULL_INTERVAL,TimeUnit.SECONDS);
 			}
+			commsLight.off();
 		}
 	};
 	
