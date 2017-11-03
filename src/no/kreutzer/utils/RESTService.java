@@ -72,7 +72,7 @@ public class RESTService {
 		CloseableHttpResponse response = httpclient.execute(httpPost);
 
 		try {
-			logger.trace("Posting:"+json.toString());
+			logger.info("Posting:"+json.toString());
 			HttpEntity e = response.getEntity();
 			EntityUtils.consume(e);
 		} finally {

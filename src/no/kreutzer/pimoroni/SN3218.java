@@ -105,7 +105,7 @@ public class SN3218 {
 			data[i] = default_gamma_table[values[i]]; 
 			ot = ot + data[i]+":";
 		}
-		logger.info("Write: "+ot);
+//		logger.info("Write: "+ot);
 		sn3218.write(CMD_SET_PWM_VALUES, data);
 		sn3218.write(CMD_UPDATE,(byte) 0xff);		
 	}

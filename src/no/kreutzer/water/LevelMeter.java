@@ -2,36 +2,43 @@ package no.kreutzer.water;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.io.IOException;
+
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+
 import com.pi4j.io.gpio.*;
 
+import no.kreutzer.utils.ConfigService;
 import no.kreutzer.water.Tank.State;
 
 public class LevelMeter implements FullSensor {
     private static final Logger logger = LogManager.getLogger(LevelMeter.class);
 	final GpioController gpio = GpioFactory.getInstance();
-	private ADS1115 adc;
+	private ADConverter adc;
 	private int MAX_VALUE = 6500;
 	private int MIN_VALUE = -4400;
 	
 	private float level = 0;
+    private @Inject	ConfigService conf;
 	
-	/* Constructor */
 	public LevelMeter () {
-		try {
-			adc = new ADS1115();
-		} catch (Exception e) {
-			logger.error("Error initializing ADS1115 "+e.getMessage());
-		}
-		logger.info("Initial level is :"+measurePercent());
-		level = measurePercent();
 	}
+	
+	@PostConstruct
+	public void init() {
+		adc = conf.getADCImpl();
+		if (adc == null)
+			logger.error("No ADC found!!");
+		else
+			logger.info("Initial level is :"+measurePercent());
+		level = measurePercent();
+	}	
 	
 	protected int measureRaw() {
 		if (adc == null) return 0;
 		try {
 			return adc.read();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error("Error reading water level "+e.getMessage());
 			return 0;
 		}
@@ -57,7 +64,7 @@ public class LevelMeter implements FullSensor {
 		case FILLING:
 			return (level >= Tank.UPPER_THRESHOLD);
 		case FULL:
-			return (level < Tank.LOWER_THRESHOLD);
+			return (level > Tank.LOWER_THRESHOLD);
 		default:
 			return false;
 		}

@@ -50,7 +50,7 @@ import org.apache.logging.log4j.Logger;
 	}
 	ADS1x15_CONFIG_COMP_QUE_DISABLE = 0x0003
  */
-public class ADS1115 {
+public class ADS1115 implements ADConverter {
     private static final Logger logger = LogManager.getLogger(ADS1115.class);
 	// Register and other configuration values:
 	private int ADS1x15_DEFAULT_ADDRESS        = 0x48;

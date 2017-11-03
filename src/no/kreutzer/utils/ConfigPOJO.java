@@ -14,8 +14,16 @@ public class ConfigPOJO {
 	private String wsEndPoint = "ws://data.kreutzer.no/dataserver/websocket";
 	private long totalFlow = 0;
 	private Tank.FullMode fullMode = Tank.FullMode.SWITCH;
-	private String flowSensorClassName = "no.kreutzer.water.HallEffectFlowMeter";
 	private boolean liveFlow = false;
+	private String flowSensorClassName = "no.kreutzer.water.HallEffectFlowMeter";
+	private String ADCClassName = "no.kreutzer.water.ADS1115";
+	
+	public String getADCClassName() {
+		return ADCClassName;
+	}
+	public void setADCClassName(String aDCClassName) {
+		ADCClassName = aDCClassName;
+	}
 	
 	public String getFlowSensorClassName() {
 		return flowSensorClassName;
@@ -65,5 +73,6 @@ public class ConfigPOJO {
 	public boolean isLiveFlow() {
 		return liveFlow;
 	}
+
 
 }

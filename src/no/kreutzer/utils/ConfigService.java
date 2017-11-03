@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import no.kreutzer.water.ADConverter;
 import no.kreutzer.water.FlowHandler;
 import no.kreutzer.water.FlowMeter;
 
@@ -81,6 +82,18 @@ public class ConfigService {
 			Class<?> clazz = Class.forName(config.getFlowSensorClassName());
 			Constructor<?> ctor = clazz.getConstructor(FlowHandler.class);
 			return (FlowMeter)ctor.newInstance(new Object[] { fh });
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	public ADConverter getADCImpl() {
+		try {
+			Class<?> clazz = Class.forName(config.getADCClassName());
+			Constructor<?> ctor = clazz.getConstructor();
+			return (ADConverter)ctor.newInstance(new Object[]{});
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();

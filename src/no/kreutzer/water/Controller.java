@@ -85,7 +85,8 @@ public class Controller {
         
         hat = new AutomationHat();
         commsLight = hat.getLight(AutomationHat.COMMS);        
-        hat.getLight(AutomationHat.POWER).on();        
+        hat.getLight(AutomationHat.POWER).on();       
+        hat.getRelay(0).open();
         //hat.getLight(AutomationHat.WARN).on();  
         //hat.getOutput(AutomationHat.OUTPUT_2).high();
 /*		
