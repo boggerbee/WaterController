@@ -23,6 +23,7 @@ import no.kreutzer.pimoroni.AutomationHat;
 import no.kreutzer.utils.ConfigService;
 import no.kreutzer.utils.RESTService;
 import no.kreutzer.utils.SocketCommand;
+import no.kreutzer.utils.SocketServer;
 import no.kreutzer.utils.WebSocketService;
 import no.kreutzer.water.FullSwitch.State;
 
@@ -82,20 +83,17 @@ public class Controller {
 		
         scheduledPool = Executors.newScheduledThreadPool(4);
         scheduledPool.schedule(runnableTask, 1,TimeUnit.SECONDS);
-        
+        /*		
         hat = new AutomationHat();
         commsLight = hat.getLight(AutomationHat.COMMS);        
         hat.getLight(AutomationHat.POWER).on();       
         hat.getRelay(0).open();
-        //hat.getLight(AutomationHat.WARN).on();  
-        //hat.getOutput(AutomationHat.OUTPUT_2).high();
-/*		
+         */       
         try {
 			new SocketServer(socketCommand);		// for cli interface
 		} catch (IOException e) {
 			logger.error(e);
 		}
- */       
 		logger.info("Init done!");
 	}
 	
@@ -170,7 +168,7 @@ public class Controller {
 	private Runnable runnableTask = new Runnable() {
 		@Override
 		public void run() {
-			commsLight.on();
+			//commsLight.on();
 			if (mode != Mode.OFF && mode != Mode.CAL) {
 				checkLevel();
 			}
@@ -184,7 +182,7 @@ public class Controller {
 			} else {
 		        scheduledPool.schedule(runnableTask, FULL_INTERVAL,TimeUnit.SECONDS);
 			}
-			commsLight.off();
+			//commsLight.off();
 		}
 	};
 	

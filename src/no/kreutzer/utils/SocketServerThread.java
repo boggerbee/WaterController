@@ -68,7 +68,7 @@ public class SocketServerThread extends Thread {
     	out.println("Usage: water <cmd> <option>\n"+
     			"Commands:\n"+
     			" calibrate [start|stop]	-- start/stop calibration\n"+
-    			" testSW 	[1,0]			-- test FullSwitch, 1:on, 0:off\n"+
+    			" testsw 	[1,0]			-- test FullSwitch, 1:on, 0:off\n"+
     			" mode  	[0,1,2]			-- fill mode, 0:off, 1:slow, 2:fast\n"+
 				" full  	[0,1]			-- full mode, 0:switch, 1:level meter");
 		
