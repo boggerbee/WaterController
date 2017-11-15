@@ -4,16 +4,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-
-import com.pi4j.io.gpio.*;
 
 import no.kreutzer.utils.ConfigService;
 import no.kreutzer.water.Tank.State;
 
+@ApplicationScoped
 public class LevelMeter implements FullSensor {
     private static final Logger logger = LogManager.getLogger(LevelMeter.class);
-	final GpioController gpio = GpioFactory.getInstance();
 	private ADConverter adc;
 	private int MAX_VALUE = 6500;
 	private int MIN_VALUE = -4400;

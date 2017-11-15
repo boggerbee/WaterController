@@ -1,9 +1,13 @@
 package no.kreutzer.water;
 
 import com.pi4j.io.gpio.*;
+
+import javax.enterprise.context.ApplicationScoped;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@ApplicationScoped
 public class Pump {
     private static final Logger logger = LogManager.getLogger(Pump.class);
     final GpioController gpio = GpioFactory.getInstance();

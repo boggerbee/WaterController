@@ -1,5 +1,7 @@
 package no.kreutzer.water;
 
+import javax.enterprise.context.ApplicationScoped;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -12,6 +14,7 @@ import com.pi4j.io.gpio.RaspiPin;
 import com.pi4j.io.gpio.event.GpioPinDigitalStateChangeEvent;
 import com.pi4j.io.gpio.event.GpioPinListenerDigital;
 
+@ApplicationScoped
 public class FullSwitch implements FullSensor {
     private static final Logger logger = LogManager.getLogger(FullSwitch.class);
     private final GpioController gpio = GpioFactory.getInstance();

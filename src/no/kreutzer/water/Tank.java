@@ -1,6 +1,7 @@
 package no.kreutzer.water;
 
 import javax.annotation.PostConstruct;
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
 import org.apache.logging.log4j.LogManager;
@@ -8,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 
 import no.kreutzer.utils.ConfigService;
 
+@ApplicationScoped
 public class Tank {
     private static final Logger logger = LogManager.getLogger(Tank.class);
 	// Thresholds for upper(full) and lower limit to start fill in percent
