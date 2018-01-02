@@ -22,7 +22,7 @@ public class Tank {
 	
 	private FullSensor fullSensor;
 	
-	public enum State {FILLING,FULL};
+	public enum State {FILLING,FULL,OFF};
 	public enum FullMode {SWITCH,LEVEL};
 	
 	private State state = State.FULL;
@@ -34,7 +34,10 @@ public class Tank {
 	@PostConstruct
 	public void init() {
 		setMode(conf.getConfig().getFullMode());
-		logger.info("Mode is: "+mode);
+		if (conf.getConfig().getFillMode() == Controller.Mode.OFF) {
+		    setState(State.OFF);
+		}
+        logger.info("Mode: "+mode+" state: "+state);
 	}	
 
 	public float getLevel() {

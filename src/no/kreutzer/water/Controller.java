@@ -16,12 +16,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import javax.json.JsonObject;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.Dependent;
 import javax.inject.Inject;
 import javax.json.Json;
 
-import no.kreutzer.pimoroni.AutomationHat;
 import no.kreutzer.utils.ConfigService;
 import no.kreutzer.utils.RESTService;
 import no.kreutzer.utils.SocketCommand;
@@ -45,18 +43,18 @@ public class Controller {
     private WebSocketService ws;
 
     public enum Mode {
-        OFF // No filling
-        , SLOW, // Only open valve
-        FAST, // Open valve and start pump
-        CAL
-    }; // calibration mode
+        OFF,    // No filling
+        SLOW,   // Only open valve
+        FAST,   // Open valve and start pump
+        CAL     // calibration mode
+    }; 
 
     private Mode mode;
     private Mode tmpMode = mode;
     private int startCnt;
 
-    private AutomationHat hat;
-    private AutomationHat.SNLight commsLight;
+//    private AutomationHat hat;
+//    private AutomationHat.SNLight commsLight;
 
     private FlowHandler flowHandler = new FlowHandler() {
         @Override
@@ -214,6 +212,7 @@ public class Controller {
                     valve.close();
                     pump.off();
                 }
+                tank.setState(Tank.State.OFF);
                 conf.getConfig().setFillMode(mode);
                 conf.writeConfig();
                 return "Mode set to OFF";
@@ -223,6 +222,7 @@ public class Controller {
                     pump.off();
                     valve.open();
                 }
+                checkLevel();
                 conf.getConfig().setFillMode(mode);
                 conf.writeConfig();
                 return "Mode set to SLOW";
@@ -232,6 +232,7 @@ public class Controller {
                     valve.open();
                     pump.on();
                 }
+                checkLevel();
                 conf.getConfig().setFillMode(mode);
                 conf.writeConfig();
                 return "Mode set to FAST";
@@ -320,7 +321,6 @@ public class Controller {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
