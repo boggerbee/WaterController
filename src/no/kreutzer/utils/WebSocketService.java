@@ -10,25 +10,40 @@ import org.java_websocket.drafts.Draft_6455;
 public class WebSocketService {
     private static final Logger logger = LogManager.getLogger(WebSocketService.class);
     final static CountDownLatch messageLatch = new CountDownLatch(1);
-    private JavaWebSocketClient clientEndPoint;
+    private JavaWebSocketClient client;
+    private SocketCommand cmd;
+    private String uri;
 
     public WebSocketService(SocketCommand cmd, String uri) {
+        this.cmd = cmd;
+        this.uri = uri;
+           
+        connect();
+    }
+    
+    private void connect() {
         try {
-        	logger.info("Open websocket to: "+uri);
-            clientEndPoint = new JavaWebSocketClient(new URI(uri),new Draft_6455());
-
-            clientEndPoint.setMsgHandler(new WebSocketMessageHandlerImpl(cmd));
-            clientEndPoint.connect();            
+            logger.info("Open websocket to: "+uri);
+            client = new JavaWebSocketClient(new URI(uri),new Draft_6455());
+            client.setMsgHandler(new WebSocketMessageHandlerImpl(cmd));
+            client.connect();
         } catch (URISyntaxException ex) {
-        	logger.error("URISyntaxException exception: " + ex.getMessage());
-        }    	
+            logger.error("URISyntaxException exception: " + ex.getMessage());
+        }         
     }
     
     public void sendMessage(String message) {
     	try {
-    		clientEndPoint.send(message);
+    		client.send(message);
     	} catch (Exception e) {
-    		//noop
+    	    logger.error("Failed to send: "+e);
     	}
+    }
+
+    public void checkAlive() {
+        if (client.isClosed()) {
+            logger.info("Attempting reconnect..");
+            connect();
+        }
     }
 }

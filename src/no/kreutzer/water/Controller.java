@@ -169,6 +169,8 @@ public class Controller {
             postTank();
             conf.getConfig().setTotalFlow(flow.getTotalCount());
             conf.writeConfig();
+            
+            ws.checkAlive();
 
             // schedule the next poll
             if (tank.getState() == Tank.State.FILLING && !mode.equals(Mode.OFF)) {
