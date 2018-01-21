@@ -170,7 +170,7 @@ public class Controller {
             conf.getConfig().setTotalFlow(flow.getTotalCount());
             conf.writeConfig();
             
-            ws.checkAlive();
+            ws.checkAlive(); 
 
             // schedule the next poll
             if (tank.getState() == Tank.State.FILLING && !mode.equals(Mode.OFF)) {
@@ -309,6 +309,7 @@ public class Controller {
         public String live(boolean b) {
             conf.getConfig().setLiveFlow(b);
             conf.writeConfig();
+            logger.info("Live set to: "+conf.getConfig().isLiveFlow());
             return getConfig();
         }
     };

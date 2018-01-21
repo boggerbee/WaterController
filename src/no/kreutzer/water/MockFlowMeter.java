@@ -11,6 +11,8 @@ public class MockFlowMeter implements FlowMeter {
     private static final Logger logger = LogManager.getLogger(MockFlowMeter.class);
 	private FlowHandler flowHandler;
 	private AtomicInteger pulseTotal = new AtomicInteger();
+    private int pps = 200;
+    private int pulsesPerLitre = 585; // calibrated number; 5846 on 10 L
 	
 	
 	public MockFlowMeter(FlowHandler f) {
@@ -21,15 +23,19 @@ public class MockFlowMeter implements FlowMeter {
     		@Override
     		public void run() {
 				pulseTotal.incrementAndGet();
-				if (flowHandler!=null) flowHandler.onCount(pulseTotal.get(),0);
+				if (Math.random() > 0.5) {
+				    if (pps<400) pps++;
+				} else {
+				    if (pps>0) pps--;
+				}
+				if (flowHandler!=null) flowHandler.onCount(pulseTotal.get(),pps);
     		}
     	}, 1000,50, TimeUnit.MILLISECONDS);		
 	}
 
 	@Override
 	public float getFlow() {
-		// TODO Auto-generated method stub
-		return 0;
+		return ((float)pps*60)/(float)pulsesPerLitre;
 	}
 
 	@Override

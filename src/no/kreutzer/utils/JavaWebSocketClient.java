@@ -42,7 +42,7 @@ public class JavaWebSocketClient extends WebSocketClient {
 
 	@Override
 	public void onMessage( String message ) {
-		logger.info( "received: " + message );
+        logger.info( "received: " + message );
 		if (message.equals("WHOAREYOU")) {
 			send("RPI");
 		} else if (message.equals("ACK")) {
