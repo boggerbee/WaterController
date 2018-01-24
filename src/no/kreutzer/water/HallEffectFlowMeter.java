@@ -71,4 +71,10 @@ public class HallEffectFlowMeter implements FlowMeter {
 	public void setTotal(long total) {
 		pulseTotal.set((int)total);
 	}
+
+    @Override
+    public int getPulsesPerSecond() {
+        // TODO Auto-generated method stub
+        return pulsesPerSecond;
+    }
 }

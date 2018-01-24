@@ -5,4 +5,5 @@ public interface FlowMeter {
 	public int getTotalCount();
 	public void setPPL(int ppl);
 	public void setTotal(long total);
+	public int getPulsesPerSecond();
 }

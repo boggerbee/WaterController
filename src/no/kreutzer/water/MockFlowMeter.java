@@ -52,4 +52,9 @@ public class MockFlowMeter implements FlowMeter {
 		pulseTotal.set((int)total);
 	}
 
+    @Override
+    public int getPulsesPerSecond() {
+        return pps;
+    }
+
 }

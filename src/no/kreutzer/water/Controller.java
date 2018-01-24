@@ -59,12 +59,7 @@ public class Controller {
     private FlowHandler flowHandler = new FlowHandler() {
         @Override
         public void onCount(long total, int current) {
-            if (conf.getConfig().isLiveFlow()) {
-                JsonObject json = Json.createObjectBuilder()
-                        .add("flow", Json.createObjectBuilder().add("total", total).add("current", current).build())
-                        .build();
-                ws.sendMessage(json.toString());
-            }
+
         }
     };
 
@@ -87,6 +82,7 @@ public class Controller {
 
         scheduledPool = Executors.newScheduledThreadPool(4);
         scheduledPool.schedule(runnableTask, 1, TimeUnit.SECONDS);
+        scheduledPool.scheduleAtFixedRate(flowPoller, 1000, 200, TimeUnit.MILLISECONDS);
         /*
          * hat = new AutomationHat(); commsLight =
          * hat.getLight(AutomationHat.COMMS);
@@ -181,6 +177,22 @@ public class Controller {
             // commsLight.off();
         }
     };
+    
+    private Runnable flowPoller = new Runnable() {
+        @Override
+        public void run() {
+            if (conf.getConfig().isLiveFlow()) {
+                sendFlowMessage(flow.getTotalCount(), flow.getPulsesPerSecond());
+            }        
+        }
+    };
+    
+    private void sendFlowMessage(long total, int current) {
+        JsonObject json = Json.createObjectBuilder()
+                .add("flow", Json.createObjectBuilder().add("total", total).add("current", current).build())
+                .build();
+        ws.sendMessage(json.toString());
+    }    
 
     private SocketCommand socketCommand = new SocketCommand() {
         @Override

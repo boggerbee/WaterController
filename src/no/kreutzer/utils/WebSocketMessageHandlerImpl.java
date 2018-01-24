@@ -42,7 +42,7 @@ public class WebSocketMessageHandlerImpl implements WebSocketMessageHandler {
 		} else if (message.equals("liveOff")) {
 			responseImpl.sendResponse(cmd.live(false));
 		} else if (message.equals("No GUI")) {
-            responseImpl.sendResponse(cmd.live(false)); // turn off live if GUI disconnected
+            cmd.live(false); // turn off live if GUI disconnected
 		} else {
 			responseImpl.sendResponse("UNKNOWN: "+message);
 		}
