@@ -17,8 +17,15 @@ public class ConfigPOJO {
 	private boolean liveFlow = false;
 	private String flowSensorClassName = "no.kreutzer.water.HallEffectFlowMeter";
 	private String ADCClassName = "no.kreutzer.water.ADS1115";
+	private int pulsesPerLitre = 585;
 	
-	public String getADCClassName() {
+	public int getPulsesPerLitre() {
+        return pulsesPerLitre;
+    }
+    public void setPulsesPerLitre(int pulsesPerLitre) {
+        this.pulsesPerLitre = pulsesPerLitre;
+    }
+    public String getADCClassName() {
 		return ADCClassName;
 	}
 	public void setADCClassName(String aDCClassName) {

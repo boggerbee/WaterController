@@ -38,7 +38,7 @@ public class Controller {
 
     private FlowMeter flow;
     private ScheduledExecutorService scheduledPool;
-    private static int FILL_INTERVAL = 1;
+    private static int FILL_INTERVAL = 10;
     private static int FULL_INTERVAL = 60;
     private WebSocketService ws;
 
@@ -68,6 +68,7 @@ public class Controller {
         ws = new WebSocketService(socketCommand, conf.getConfig().getWsEndPoint());
         flow = conf.getFlowSensorImpl(flowHandler);
         flow.setTotal(conf.getConfig().getTotalFlow());
+        flow.setPPL(conf.getConfig().getPulsesPerLitre());
 
         tank.getFullSwitch().setFullEventHandler(new FullEventHandler() {
             @Override
