@@ -159,31 +159,47 @@ public class Controller {
     private Runnable runnableTask = new Runnable() {
         @Override
         public void run() {
-            // commsLight.on();
-            if (mode != Mode.OFF && mode != Mode.CAL) {
-                checkLevel();
-            }
-            postTank();
-            conf.getConfig().setTotalFlow(flow.getTotalCount());
-            conf.writeConfig();
-            
-            ws.checkAlive(); 
-
-            // schedule the next poll
-            if (tank.getState() == Tank.State.FILLING && !mode.equals(Mode.OFF)) {
-                scheduledPool.schedule(runnableTask, FILL_INTERVAL, TimeUnit.SECONDS);
-            } else {
-                scheduledPool.schedule(runnableTask, FULL_INTERVAL, TimeUnit.SECONDS);
-            }
-            // commsLight.off();
+        	try {
+	            // commsLight.on();
+	            if (mode != Mode.OFF && mode != Mode.CAL) {
+	                checkLevel();
+	            }
+	            postTank();
+	            conf.getConfig().setTotalFlow(flow.getTotalCount());
+	            conf.writeConfig();
+	            
+	            ws.checkAlive(); 
+	
+	            // schedule the next poll
+	            if (tank.getState() == Tank.State.FILLING && !mode.equals(Mode.OFF)) {
+	                scheduledPool.schedule(runnableTask, FILL_INTERVAL, TimeUnit.SECONDS);
+	            } else {
+	                scheduledPool.schedule(runnableTask, FULL_INTERVAL, TimeUnit.SECONDS);
+	            }
+	            // commsLight.off();
+	        } catch (RuntimeException e){
+	            logger.error("Uncaught Runtime Exception",e);
+	            return; // Keep working
+	        } catch (Throwable e){
+	            logger.error("Unrecoverable error",e);
+	            throw e;
+	        }
         }
     };
     
     private Runnable flowPoller = new Runnable() {
         @Override
         public void run() {
-            if (conf.getConfig().isLiveFlow()) {
-                sendFlowMessage(flow.getTotalCount(), flow.getPulsesPerSecond());
+        	try {
+	            if (conf.getConfig().isLiveFlow()) {
+	                sendFlowMessage(flow.getTotalCount(), flow.getPulsesPerSecond());
+	            }    
+            } catch (RuntimeException e){
+                logger.error("Uncaught Runtime Exception",e);
+                return; // Keep working
+            } catch (Throwable e){
+                logger.error("Unrecoverable error",e);
+                throw e;
             }        
         }
     };
