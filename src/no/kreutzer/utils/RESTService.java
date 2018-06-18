@@ -5,6 +5,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -26,8 +27,14 @@ public class RESTService {
 	private String endPoint;
     private static final Logger logger = LogManager.getLogger(RESTService.class);
     private @Inject ConfigService conf;
+    private RequestConfig reqConfig;
 	
 	public RESTService() {
+        int timeout = 180;      
+        RequestConfig reqConfig = RequestConfig.custom()
+                .setConnectTimeout(timeout * 1000)
+                .setConnectionRequestTimeout(timeout * 1000)
+                .setSocketTimeout(timeout * 1000).build();
 	}
 	
 	@PostConstruct
@@ -67,18 +74,21 @@ public class RESTService {
 	}
 
 	public void post(String url, JsonObject json) throws IOException {
-		CloseableHttpClient httpclient = HttpClients.createDefault();
+		//CloseableHttpClient httpclient = HttpClients.createDefault();
+		CloseableHttpClient httpclient = HttpClientBuilder.create().setDefaultRequestConfig(reqConfig).build();
 		HttpPost httpPost = new HttpPost(endPoint+"/"+url);
 		StringEntity entity = new StringEntity(json.toString());
 		httpPost.setEntity(entity); 
-		CloseableHttpResponse response = httpclient.execute(httpPost);
 
 		try {
 //			logger.info("Posting:"+json.toString());
+			CloseableHttpResponse response = httpclient.execute(httpPost);
 			HttpEntity e = response.getEntity();
 			EntityUtils.consume(e);
-		} finally {
 			response.close();
+        } catch (IOException e) {
+            logger.error("IOError during post",e);
+		} finally {
 			httpclient.close(); // redundant?
 		}		
 	}
